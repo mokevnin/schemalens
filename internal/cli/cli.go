@@ -28,7 +28,7 @@ const (
 // process exit code. Results go to stdout, diagnostics to stderr.
 func Run(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		_, _ = fmt.Fprintln(stderr, "usage: schemalens <command> [flags]\ncommands: check, rules, explain")
+		_, _ = fmt.Fprintln(stderr, "usage: schemalens <command> [flags]\ncommands: check, rules, explain, baseline")
 		return ExitUsage
 	}
 	switch args[0] {
@@ -41,7 +41,7 @@ func Run(args []string, stdout, stderr io.Writer) int {
 	case "explain":
 		return runExplain(args[1:], stdout, stderr)
 	default:
-		_, _ = fmt.Fprintf(stderr, "schemalens: unknown command %q\ncommands: check, rules, explain\n", args[0])
+		_, _ = fmt.Fprintf(stderr, "schemalens: unknown command %q\ncommands: check, rules, explain, baseline\n", args[0])
 		return ExitUsage
 	}
 }
