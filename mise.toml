@@ -14,6 +14,10 @@ run = "for d in $(find . -name go.mod -not -path '*/testdata/*' | xargs -n1 dirn
 description = "Rewrite golden files; review the diff before committing"
 run = "go test ./internal/cli -update"
 
+[tasks.docs]
+description = "Regenerate docs/rules from the rule registry"
+run = "go run ./tools/ruledocs"
+
 [tasks.lint]
 description = "Run golangci-lint in every workspace module"
 run = "for d in $(find . -name go.mod -not -path '*/testdata/*' | xargs -n1 dirname); do (cd $d && golangci-lint run ./...) || exit 1; done"
