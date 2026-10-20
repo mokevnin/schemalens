@@ -86,6 +86,9 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: %v\n", err)
 		return ExitUsage
 	}
+	for _, r := range rules.Skipped(res.Dialect) {
+		_, _ = fmt.Fprintf(stderr, "schemalens check: rule %s skipped: does not apply to %s\n", r.ID, res.Dialect)
+	}
 	findings := rules.RunEnabled(rules.Input{Dialect: res.Dialect, Realm: res.Realm}, cfg.Enabled)
 	findings, unmatched := cfg.Apply(findings)
 

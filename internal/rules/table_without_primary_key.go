@@ -13,7 +13,7 @@ const TableWithoutPrimaryKey = "table-without-primary-key"
 func init() {
 	register(Rule{
 		ID:       TableWithoutPrimaryKey,
-		Dialects: []dialect.Dialect{dialect.SQLite},
+		Dialects: dialect.All,
 		Explain: Explanation{
 			Why:       "Without a primary key rows cannot be addressed individually, replication and ORMs lose their handle on a row, and duplicates cannot be prevented.",
 			Fix:       "Declare a primary key on the model that maps to the table and regenerate the schema.",

@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "rule": "fk-without-index",
+      "object": {
+        "schema": "public",
+        "table": "child",
+        "foreign_key": "child_parent_fk"
+      },
+      "message": "foreign key \"child_parent_fk\" on table \"child\" has no supporting index: column \"parent_id\" is not indexed",
+      "fix": "Add an index on table \"child\" whose leading column is \"parent_id\" (for example an index tag on the model field), then regenerate the schema."
+    }
+  ]
+}

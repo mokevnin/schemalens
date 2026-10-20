@@ -67,6 +67,18 @@ func Lookup(id string) (Rule, bool) {
 	return r, ok
 }
 
+// Skipped returns the rules that do not apply to d, sorted by id. Callers
+// report them so that a clean result is never mistaken for "checked".
+func Skipped(d dialect.Dialect) []Rule {
+	var out []Rule
+	for _, r := range All() {
+		if !r.AppliesTo(d) {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
 // Run executes every rule that applies to in.Dialect and returns the findings
 // in deterministic order.
 func Run(in Input) []finding.Finding {

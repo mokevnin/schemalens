@@ -4,7 +4,12 @@ package dialect
 // Dialect identifies a database engine.
 type Dialect string
 
-// Supported dialects. Later tickets add PostgreSQL and MySQL.
+// Supported dialects.
 const (
-	SQLite Dialect = "sqlite"
+	SQLite   Dialect = "sqlite"
+	Postgres Dialect = "postgres"
+	MySQL    Dialect = "mysql"
 )
+
+// All lists every supported dialect.
+var All = []Dialect{SQLite, Postgres, MySQL}

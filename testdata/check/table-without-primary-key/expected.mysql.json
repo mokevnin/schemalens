@@ -1,0 +1,13 @@
+{
+  "findings": [
+    {
+      "rule": "table-without-primary-key",
+      "object": {
+        "schema": "schemalens",
+        "table": "audit_log"
+      },
+      "message": "table \"audit_log\" has no primary key",
+      "fix": "Declare a primary key for the model that maps to table \"audit_log\" (for example an id field marked as the primary key), then regenerate the schema."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+rule fk-without-index skipped: does not apply to mysql

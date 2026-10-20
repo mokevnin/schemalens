@@ -2,7 +2,6 @@ package cli_test
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/json"
 	"flag"
 	"os"
@@ -11,72 +10,111 @@ import (
 	"strings"
 	"testing"
 
-	_ "modernc.org/sqlite"
-
 	"github.com/mokevnin/schemalens/internal/cli"
+	"github.com/mokevnin/schemalens/internal/dialect"
 )
 
 var update = flag.Bool("update", false, "rewrite golden files")
 
-// Golden cases live in testdata/check/<case>/:
+// Golden cases live in testdata/check/<case>/ and run against every dialect:
 //
-//	schema.sql     DDL applied to a fresh SQLite database
-//	args           optional extra arguments, whitespace separated; {case} is this directory
-//	schemalens.yml optional configuration, passed as --config {case}/schemalens.yml in args
-//	expected.json  stdout of `schemalens check`
-//	exit_code      expected exit code
+//	schema.sql             DDL applied to a fresh database, for every dialect
+//	schema.<dialect>.sql   DDL for one dialect, instead of schema.sql
+//	args                   optional extra arguments, whitespace separated; {case} is this directory
+//	schemalens.yml         optional configuration, passed as --config {case}/schemalens.yml in args
+//	expected.json          stdout of `schemalens check`
+//	expected.<dialect>.json  stdout for one dialect, instead of expected.json
+//	exit_code              expected exit code (exit_code.<dialect> likewise)
+//	stderr.<dialect>       optional text stderr must contain for that dialect
 //
-// Every future rule adds a directory here; no Go changes are needed.
+// The schema name differs per dialect (main, public, schemalens), so cases
+// with findings carry per-dialect expected files. Every future rule adds a
+// directory here; no Go changes are needed. PostgreSQL and MySQL run in
+// containers and skip when Docker is not available.
 // Run `go test ./internal/cli -update` to rewrite expected files, then review the diff.
 func TestCheckGolden(t *testing.T) {
-	cases, err := filepath.Glob("../../testdata/check/*/schema.sql")
+	cases, err := filepath.Glob("../../testdata/check/*")
 	if err != nil || len(cases) == 0 {
 		t.Fatalf("no golden cases found: %v", err)
 	}
-	for _, schemaFile := range cases {
-		dir := filepath.Dir(schemaFile)
-		t.Run(filepath.Base(dir), func(t *testing.T) {
-			ddl, err := os.ReadFile(schemaFile)
-			if err != nil {
-				t.Fatal(err)
-			}
-			dbPath := filepath.Join(t.TempDir(), "db.sqlite")
-			applyDDL(t, dbPath, string(ddl))
-
-			args := []string{"check", "--dsn", "sqlite://" + dbPath}
-			if extra, err := os.ReadFile(filepath.Join(dir, "args")); err == nil {
-				// {case} expands to the case directory so args can point at a config file.
-				args = append(args, strings.Fields(strings.ReplaceAll(string(extra), "{case}", dir))...)
-			}
-			stdout, _, code := run(args...)
-
-			if *update {
-				writeFile(t, filepath.Join(dir, "expected.json"), stdout)
-				writeFile(t, filepath.Join(dir, "exit_code"), strconv.Itoa(code)+"\n")
-				return
-			}
-			want, err := os.ReadFile(filepath.Join(dir, "expected.json"))
-			if err != nil {
-				t.Fatal(err)
-			}
-			if stdout != string(want) {
-				t.Errorf("stdout mismatch\n--- got\n%s\n--- want\n%s", stdout, want)
-			}
-			wantCode, err := os.ReadFile(filepath.Join(dir, "exit_code"))
-			if err != nil {
-				t.Fatal(err)
-			}
-			if strconv.Itoa(code) != strings.TrimSpace(string(wantCode)) {
-				t.Errorf("exit code = %d, want %s", code, wantCode)
-			}
-			if !json.Valid([]byte(stdout)) {
-				t.Errorf("stdout is not valid JSON: %s", stdout)
-			}
-			again, _, _ := run(args...)
-			if again != stdout {
-				t.Errorf("two runs differ\n--- first\n%s\n--- second\n%s", stdout, again)
+	for _, b := range backends {
+		t.Run(string(b.dialect), func(t *testing.T) {
+			for _, dir := range cases {
+				t.Run(filepath.Base(dir), func(t *testing.T) {
+					runGolden(t, b, dir)
+				})
 			}
 		})
+	}
+}
+
+// pick returns the dialect-specific file name if it exists, else the shared one.
+func pick(dir string, d dialect.Dialect, shared, specific string) (string, bool) {
+	for _, name := range []string{specific, shared} {
+		path := filepath.Join(dir, name)
+		if _, err := os.Stat(path); err == nil {
+			return path, true
+		}
+	}
+	return filepath.Join(dir, shared), false
+}
+
+func runGolden(t *testing.T, b backend, dir string) {
+	d := b.dialect
+	schemaFile, ok := pick(dir, d, "schema.sql", "schema."+string(d)+".sql")
+	if !ok {
+		t.Skipf("case has no schema for %s", d)
+	}
+	ddl, err := os.ReadFile(schemaFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	dsn := b.setup(t, string(ddl))
+
+	args := []string{"check", "--dsn", dsn}
+	if extra, err := os.ReadFile(filepath.Join(dir, "args")); err == nil {
+		// {case} expands to the case directory so args can point at a config file.
+		args = append(args, strings.Fields(strings.ReplaceAll(string(extra), "{case}", dir))...)
+	}
+	stdout, stderr, code := run(args...)
+
+	expectedFile, expectedSpecific := pick(dir, d, "expected.json", "expected."+string(d)+".json")
+	codeFile, codeSpecific := pick(dir, d, "exit_code", "exit_code."+string(d))
+	if *update {
+		// Shared expectations are rewritten from SQLite only; other dialects
+		// rewrite only the files that are specific to them.
+		if d != dialect.SQLite && (!expectedSpecific || !codeSpecific) {
+			return
+		}
+		writeFile(t, expectedFile, stdout)
+		writeFile(t, codeFile, strconv.Itoa(code)+"\n")
+		return
+	}
+	want, err := os.ReadFile(expectedFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stdout != string(want) {
+		t.Errorf("stdout mismatch\n--- got\n%s\n--- want\n%s", stdout, want)
+	}
+	wantCode, err := os.ReadFile(codeFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strconv.Itoa(code) != strings.TrimSpace(string(wantCode)) {
+		t.Errorf("exit code = %d, want %s", code, wantCode)
+	}
+	if !json.Valid([]byte(stdout)) {
+		t.Errorf("stdout is not valid JSON: %s", stdout)
+	}
+	if wantErr, err := os.ReadFile(filepath.Join(dir, "stderr."+string(d))); err == nil {
+		if !strings.Contains(stderr, strings.TrimSpace(string(wantErr))) {
+			t.Errorf("stderr = %q, want it to contain %q", stderr, wantErr)
+		}
+	}
+	again, _, _ := run(args...)
+	if again != stdout {
+		t.Errorf("two runs differ\n--- first\n%s\n--- second\n%s", stdout, again)
 	}
 }
 
@@ -110,18 +148,6 @@ func run(args ...string) (stdout, stderr string, code int) {
 	var out, errb bytes.Buffer
 	code = cli.Run(args, &out, &errb)
 	return out.String(), errb.String(), code
-}
-
-func applyDDL(t *testing.T, path, ddl string) {
-	t.Helper()
-	db, err := sql.Open("sqlite", path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() { _ = db.Close() }()
-	if _, err := db.Exec(ddl); err != nil {
-		t.Fatalf("applying DDL: %v", err)
-	}
 }
 
 func writeFile(t *testing.T, path, content string) {
