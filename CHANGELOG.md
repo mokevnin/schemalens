@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.1](https://github.com/mokevnin/schemalens/compare/v0.1.0...v0.1.1) (2026-10-20)
+
+
+### Features
+
+* **gorm:** declare many2many join tables with join_table_for ([c79a454](https://github.com/mokevnin/schemalens/commit/c79a454d6358c2f47bada8e1b065094d284beab3))
+
+
+### Bug Fixes
+
+* drop replace directives so gorm, bun and the extended-mode modules install from tagged versions ([da52af2](https://github.com/mokevnin/schemalens/commit/da52af2b0c2da1d7f9ceca96a1b26ca92c625432))
+
 ## 0.1.0 (2026-10-20)
 
 
