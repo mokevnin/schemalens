@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.2](https://github.com/mokevnin/schemalens/compare/v0.1.1...v0.1.2) (2026-10-20)
+
+
+### Features
+
+* expose the core as a public Go package ([1281b21](https://github.com/mokevnin/schemalens/commit/1281b21d3644e0c1259bb5abb8149947183e7042))
+
+
+### Bug Fixes
+
+* **adapter-ent:** a unique index with IndexWhere is not an unconditional unique claim ([98f1a85](https://github.com/mokevnin/schemalens/commit/98f1a85efc98ae5dd1b216f746c377607c40bf76)), closes [#22](https://github.com/mokevnin/schemalens/issues/22)
+* spell DefaultConfigFile as a literal so godoc does not name an internal package ([2c6cbab](https://github.com/mokevnin/schemalens/commit/2c6cbaba96f47e9020854c35ba52a59f3ca9a2ed))
+
 ## [0.1.1](https://github.com/mokevnin/schemalens/compare/v0.1.0...v0.1.1) (2026-10-20)
 
 
