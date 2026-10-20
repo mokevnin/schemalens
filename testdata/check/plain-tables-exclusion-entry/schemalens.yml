@@ -1,0 +1,10 @@
+rules:
+  plain-tables:
+    enabled: true
+    options:
+      exclude:
+        - account_audit
+exclusions:
+  - rule: plain-tables
+    object: main.view:account_names
+    reason: reporting view owned by the data team

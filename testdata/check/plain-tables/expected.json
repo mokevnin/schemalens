@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "rule": "plain-tables",
+      "object": {
+        "schema": "main",
+        "view": "account_names"
+      },
+      "message": "view \"account_names\" exists in schema \"main\" but is not part of the model",
+      "fix": "Move the logic of view \"account_names\" into application code and drop it, or exclude it in schemalens.yml with a reason (rules.plain-tables.options for extension and migration-tool objects)."
+    },
+    {
+      "rule": "plain-tables",
+      "object": {
+        "schema": "main",
+        "table": "account",
+        "trigger": "account_audit"
+      },
+      "message": "trigger \"account_audit\" on table \"account\" exists but is not part of the model",
+      "fix": "Move the logic of trigger \"account_audit\" into application code and drop it, or exclude it in schemalens.yml with a reason (rules.plain-tables.options for extension and migration-tool objects)."
+    }
+  ]
+}

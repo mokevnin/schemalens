@@ -24,7 +24,12 @@ import (
 type Result struct {
 	Dialect dialect.Dialect
 	Realm   *schema.Realm
+	// DB stays open for rules that query the catalog directly; Close it.
+	DB *sql.DB
 }
+
+// Close releases the database handle.
+func (r *Result) Close() { _ = r.DB.Close() }
 
 // Inspect connects to the database named by dsn and inspects it. The DSN
 // scheme selects the dialect: sqlite://<path>, postgres://user:pass@host/db or
@@ -58,7 +63,12 @@ func inspectSQLite(ctx context.Context, path string) (*Result, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open sqlite database %q: %w", path, err)
 	}
-	defer func() { _ = db.Close() }()
+	ok := false
+	defer func() {
+		if !ok {
+			_ = db.Close()
+		}
+	}()
 	if err := db.PingContext(ctx); err != nil {
 		return nil, fmt.Errorf("open sqlite database %q: %w", path, err)
 	}
@@ -70,7 +80,8 @@ func inspectSQLite(ctx context.Context, path string) (*Result, error) {
 	if err != nil {
 		return nil, fmt.Errorf("inspect sqlite database %q: %w", path, err)
 	}
-	return &Result{Dialect: dialect.SQLite, Realm: realm}, nil
+	ok = true
+	return &Result{Dialect: dialect.SQLite, Realm: realm, DB: db}, nil
 }
 
 func inspectPostgres(ctx context.Context, dsn string) (*Result, error) {
@@ -84,7 +95,12 @@ func inspectPostgres(ctx context.Context, dsn string) (*Result, error) {
 	}
 	cfg.RuntimeParams["default_transaction_read_only"] = "on"
 	db := stdlib.OpenDB(*cfg)
-	defer func() { _ = db.Close() }()
+	ok := false
+	defer func() {
+		if !ok {
+			_ = db.Close()
+		}
+	}()
 	if err := db.PingContext(ctx); err != nil {
 		return nil, fmt.Errorf("connect to postgres database %q: %w", cfg.Database, err)
 	}
@@ -100,7 +116,8 @@ func inspectPostgres(ctx context.Context, dsn string) (*Result, error) {
 	if err != nil {
 		return nil, fmt.Errorf("inspect postgres database %q: %w", cfg.Database, err)
 	}
-	return &Result{Dialect: dialect.Postgres, Realm: realm}, nil
+	ok = true
+	return &Result{Dialect: dialect.Postgres, Realm: realm, DB: db}, nil
 }
 
 func inspectMySQL(ctx context.Context, dsn string) (*Result, error) {
@@ -130,7 +147,12 @@ func inspectMySQL(ctx context.Context, dsn string) (*Result, error) {
 		return nil, fmt.Errorf("invalid mysql dsn: %w", err)
 	}
 	db := sql.OpenDB(connector)
-	defer func() { _ = db.Close() }()
+	ok := false
+	defer func() {
+		if !ok {
+			_ = db.Close()
+		}
+	}()
 	if err := db.PingContext(ctx); err != nil {
 		return nil, fmt.Errorf("connect to mysql database %q: %w", name, err)
 	}
@@ -142,7 +164,8 @@ func inspectMySQL(ctx context.Context, dsn string) (*Result, error) {
 	if err != nil {
 		return nil, fmt.Errorf("inspect mysql database %q: %w", name, err)
 	}
-	return &Result{Dialect: dialect.MySQL, Realm: realm}, nil
+	ok = true
+	return &Result{Dialect: dialect.MySQL, Realm: realm, DB: db}, nil
 }
 
 func escapePath(p string) string {

@@ -10,10 +10,13 @@ import (
 // apply are set; Schema and Table are always set.
 type Object struct {
 	Schema     string `json:"schema"`
-	Table      string `json:"table"`
+	Table      string `json:"table,omitempty"`
 	Column     string `json:"column,omitempty"`
 	Index      string `json:"index,omitempty"`
 	ForeignKey string `json:"foreign_key,omitempty"`
+	Trigger    string `json:"trigger,omitempty"`
+	View       string `json:"view,omitempty"`
+	Function   string `json:"function,omitempty"`
 }
 
 // Position is a place in the model's source, supplied by adapters.
@@ -43,6 +46,9 @@ func Sort(fs []Finding) {
 			cmp.Compare(a.Object.Column, b.Object.Column),
 			cmp.Compare(a.Object.Index, b.Object.Index),
 			cmp.Compare(a.Object.ForeignKey, b.Object.ForeignKey),
+			cmp.Compare(a.Object.Trigger, b.Object.Trigger),
+			cmp.Compare(a.Object.View, b.Object.View),
+			cmp.Compare(a.Object.Function, b.Object.Function),
 			cmp.Compare(a.Message, b.Message),
 		)
 	})

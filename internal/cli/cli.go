@@ -97,7 +97,14 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	for _, r := range rules.Skipped(res.Dialect) {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: rule %s skipped: does not apply to %s\n", r.ID, res.Dialect)
 	}
-	findings := rules.RunEnabled(rules.Input{Dialect: res.Dialect, Realm: res.Realm, Manifest: model, RuleOptions: cfg.Options}, cfg.Enabled)
+	defer res.Close()
+	findings, err := rules.RunEnabled(context.Background(), rules.Input{
+		Dialect: res.Dialect, Realm: res.Realm, Manifest: model, DB: res.DB, RuleOptions: cfg.Options,
+	}, cfg.Enabled)
+	if err != nil {
+		_, _ = fmt.Fprintf(stderr, "schemalens check: %v\n", err)
+		return ExitUsage
+	}
 	findings, unmatched := cfg.Apply(findings)
 
 	if *format == "sarif" {

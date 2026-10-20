@@ -13,6 +13,12 @@ const BaselineReason = "baseline"
 
 // FormatObject is the inverse of ParseObject.
 func FormatObject(o finding.Object) string {
+	switch {
+	case o.View != "":
+		return o.Schema + ".view:" + o.View
+	case o.Function != "":
+		return o.Schema + ".function:" + o.Function
+	}
 	s := o.Schema + "." + o.Table
 	switch {
 	case o.Column != "":
@@ -21,6 +27,8 @@ func FormatObject(o finding.Object) string {
 		s += ".index:" + o.Index
 	case o.ForeignKey != "":
 		s += ".foreign_key:" + o.ForeignKey
+	case o.Trigger != "":
+		s += ".trigger:" + o.Trigger
 	}
 	return s
 }

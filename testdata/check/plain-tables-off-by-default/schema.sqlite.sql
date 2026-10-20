@@ -1,0 +1,3 @@
+CREATE TABLE account (id INTEGER PRIMARY KEY, name TEXT);
+CREATE VIEW account_names AS SELECT name FROM account;
+CREATE TRIGGER account_audit AFTER INSERT ON account BEGIN SELECT 1; END;

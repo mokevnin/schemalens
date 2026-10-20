@@ -1,0 +1,3 @@
+rules:
+  plain-tables:
+    enabled: true

@@ -11,7 +11,9 @@
 //	    reason: append-only raw event log # required
 //
 // An exclusion object is "schema.table" optionally followed by
-// ".column:NAME", ".index:NAME" or ".foreign_key:NAME" to name a sub-object.
+// ".column:NAME", ".index:NAME", ".foreign_key:NAME" or ".trigger:NAME" to name
+// a sub-object. Views and functions have no table and are written
+// "schema.view:NAME" and "schema.function:NAME".
 // Matching is exact; there are no wildcards. Schema and table names must not
 // contain dots.
 package config
@@ -118,10 +120,14 @@ func (c *Config) validate() error {
 	return nil
 }
 
-// Enabled reports whether the rule runs. Rules are enabled unless disabled.
+// Enabled reports whether the rule runs. Rules are enabled unless disabled,
+// except rules registered DefaultOff, which run only when enabled explicitly.
 func (c *Config) Enabled(ruleID string) bool {
-	rc, ok := c.Rules[ruleID]
-	return !ok || rc.Enabled == nil || *rc.Enabled
+	if rc, ok := c.Rules[ruleID]; ok && rc.Enabled != nil {
+		return *rc.Enabled
+	}
+	r, _ := rules.Lookup(ruleID)
+	return !r.DefaultOff
 }
 
 // Options returns the rule-specific options of a rule, or nil.
@@ -132,14 +138,25 @@ func (c *Config) Options(ruleID string) map[string]any {
 // ParseObject turns the exclusion object syntax into a finding.Object.
 func ParseObject(s string) (finding.Object, error) {
 	parts := strings.SplitN(s, ".", 3)
+	if len(parts) == 2 && parts[0] != "" {
+		// schema.view:NAME and schema.function:NAME have no table.
+		if kind, name, ok := strings.Cut(parts[1], ":"); ok && name != "" {
+			switch kind {
+			case "view":
+				return finding.Object{Schema: parts[0], View: name}, nil
+			case "function":
+				return finding.Object{Schema: parts[0], Function: name}, nil
+			}
+		}
+	}
 	if len(parts) < 2 || parts[0] == "" || parts[1] == "" {
-		return finding.Object{}, fmt.Errorf("object %q: want schema.table, optionally .column:NAME, .index:NAME or .foreign_key:NAME", s)
+		return finding.Object{}, fmt.Errorf("object %q: want schema.table (optionally .column:NAME, .index:NAME, .foreign_key:NAME or .trigger:NAME), schema.view:NAME or schema.function:NAME", s)
 	}
 	o := finding.Object{Schema: parts[0], Table: parts[1]}
 	if len(parts) == 3 {
 		kind, name, ok := strings.Cut(parts[2], ":")
 		if !ok || name == "" {
-			return finding.Object{}, fmt.Errorf("object %q: sub-object must be column:NAME, index:NAME or foreign_key:NAME", s)
+			return finding.Object{}, fmt.Errorf("object %q: sub-object must be column:NAME, index:NAME, foreign_key:NAME or trigger:NAME", s)
 		}
 		switch kind {
 		case "column":
@@ -148,6 +165,8 @@ func ParseObject(s string) (finding.Object, error) {
 			o.Index = name
 		case "foreign_key":
 			o.ForeignKey = name
+		case "trigger":
+			o.Trigger = name
 		default:
 			return finding.Object{}, fmt.Errorf("object %q: unknown sub-object kind %q", s, kind)
 		}

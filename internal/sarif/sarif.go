@@ -128,9 +128,13 @@ func locate(f finding.Finding) location {
 			Region:   region{StartLine: max(f.Source.Line, 1)},
 		}
 	}
-	name, kind := []string{f.Object.Schema, f.Object.Table}, "table"
+	name, kind := []string{f.Object.Schema}, "table"
+	if f.Object.Table != "" {
+		name = append(name, f.Object.Table)
+	}
 	for _, part := range []struct{ kind, name string }{
 		{"column", f.Object.Column}, {"index", f.Object.Index}, {"foreign key", f.Object.ForeignKey},
+		{"trigger", f.Object.Trigger}, {"view", f.Object.View}, {"function", f.Object.Function},
 	} {
 		if part.name != "" {
 			name, kind = append(name, part.name), part.kind
