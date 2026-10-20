@@ -1,0 +1,3 @@
+# What bun decides at run time and static analysis cannot see.
+tables:
+  Label: tags   # struct name -> physical table name, used verbatim

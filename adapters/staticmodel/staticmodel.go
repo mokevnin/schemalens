@@ -225,7 +225,7 @@ func Deref(t types.Type) types.Type {
 // "" when t is not a named type. Adapters compare it with names such as
 // "gorm.io/gorm.Model" or "time.Time".
 func NamedType(t types.Type) string {
-	n, ok := Deref(t).(*types.Named)
+	n, ok := types.Unalias(Deref(t)).(*types.Named)
 	if !ok || n.Obj().Pkg() == nil {
 		return ""
 	}

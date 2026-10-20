@@ -1,0 +1,293 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "users",
+      "source": {
+        "file": "models.go",
+        "line": 23
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 26
+          }
+        },
+        {
+          "name": "email",
+          "required": true,
+          "unique": true,
+          "max_length": 255,
+          "source": {
+            "file": "models.go",
+            "line": 27
+          }
+        },
+        {
+          "name": "name",
+          "source": {
+            "file": "models.go",
+            "line": 28
+          }
+        },
+        {
+          "name": "nick",
+          "source": {
+            "file": "models.go",
+            "line": 29
+          }
+        },
+        {
+          "name": "home_street",
+          "required": true,
+          "max_length": 200,
+          "source": {
+            "file": "models.go",
+            "line": 14
+          }
+        },
+        {
+          "name": "home_city",
+          "source": {
+            "file": "models.go",
+            "line": 15
+          }
+        },
+        {
+          "name": "company_id",
+          "source": {
+            "file": "models.go",
+            "line": 33
+          }
+        },
+        {
+          "name": "last_login",
+          "source": {
+            "file": "models.go",
+            "line": 36
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relations": [
+        {
+          "columns": [
+            "company_id"
+          ],
+          "references": {
+            "schema": "billing",
+            "table": "companies"
+          }
+        }
+      ]
+    },
+    {
+      "name": "orders",
+      "source": {
+        "file": "models.go",
+        "line": 39
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 42
+          }
+        },
+        {
+          "name": "buyer_id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 43
+          }
+        },
+        {
+          "name": "total",
+          "source": {
+            "file": "models.go",
+            "line": 44
+          }
+        },
+        {
+          "name": "placed_at",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 45
+          }
+        },
+        {
+          "name": "slot",
+          "source": {
+            "file": "models.go",
+            "line": 46
+          }
+        },
+        {
+          "name": "region",
+          "source": {
+            "file": "models.go",
+            "line": 47
+          }
+        },
+        {
+          "name": "created_by_user",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 20
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "uniques": [
+        {
+          "columns": [
+            "slot",
+            "region"
+          ]
+        }
+      ],
+      "relations": [
+        {
+          "columns": [
+            "buyer_id"
+          ],
+          "references": {
+            "table": "users"
+          }
+        }
+      ]
+    },
+    {
+      "schema": "billing",
+      "name": "companies",
+      "source": {
+        "file": "models.go",
+        "line": 52
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 55
+          }
+        },
+        {
+          "name": "name",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 56
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "name": "user_profiles",
+      "source": {
+        "file": "models.go",
+        "line": 60
+      },
+      "columns": [
+        {
+          "name": "user_id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 63
+          }
+        },
+        {
+          "name": "bio",
+          "source": {
+            "file": "models.go",
+            "line": 65
+          }
+        }
+      ],
+      "primary_key": [
+        "user_id"
+      ],
+      "relations": [
+        {
+          "columns": [
+            "user_id"
+          ],
+          "references": {
+            "table": "users"
+          }
+        }
+      ]
+    },
+    {
+      "name": "categories",
+      "source": {
+        "file": "models.go",
+        "line": 69
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 72
+          }
+        },
+        {
+          "name": "title",
+          "source": {
+            "file": "models.go",
+            "line": 73
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "name": "tags",
+      "source": {
+        "file": "models.go",
+        "line": 77
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 80
+          }
+        },
+        {
+          "name": "title",
+          "source": {
+            "file": "models.go",
+            "line": 81
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ]
+    }
+  ]
+}

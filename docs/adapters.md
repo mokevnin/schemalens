@@ -105,3 +105,35 @@ exclude: [Scratch]         # look like models, are not
 
 A `TableName` method returning a string literal is read as is; one computing its result makes the
 adapter fail, naming the struct and file:line, until `tables` supplies the name.
+
+### bun (`adapters/bun`)
+
+```
+schemalens check --dsn ... --adapter bun [--adapter-arg ./models]... [--adapter-arg --config=file.yml]
+```
+
+Same shape as the gorm adapter: arguments are Go package patterns, the project is not modified, and
+the command, config loading and manifest types come from `adapters/staticmodel`. A struct is a
+model when it embeds `bun.BaseModel`, has a config entry, or has `bun` tags and is not merely
+embedded in another struct. Understood: `bun.BaseModel` tags (`table:name`, optionally
+`schema.name`), anonymous embedded structs and `embed:prefix_`, the column name (`bun:"name"` or
+`column:`), `pk` (primary key, implies not null), `notnull`, `autoincrement`, `unique` (plain, or
+`unique:group` shared across fields into a composite unique), `type:varchar(n)` / `char(n)` (as
+`max_length`), `-`, `scanonly` (skipped). Relations are not columns: `rel:belongs-to`, `has-one`
+and `has-many`, with `join:base=joined` or bun's default key names, become manifest `relations`;
+`m2m` and `polymorphic` are not covered. A relation naming a column the struct lacks fails the
+run (bun would panic at start-up), naming file:line of the field. Table names follow bun: the
+`BaseModel` tag, else the struct name underscored and pluralized (`UserProfile` -> `user_profiles`).
+
+What static analysis cannot see goes in `schemalens-bun.yml` (project directory, or `--config`):
+
+```yaml
+naming:
+  singular_table: false    # true if the project sets an identity schema.SetTableNameInflector
+tables:                    # struct name (or importpath.Name) -> physical table name, verbatim
+  Label: tags
+exclude: [Scratch]         # look like models, are not
+```
+
+The adapter's tests check its manifest against bun's own runtime schema for the sample project
+(table names, columns, not-null, primary keys).
