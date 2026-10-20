@@ -1,0 +1,31 @@
+{
+  "findings": [
+    {
+      "rule": "relation-without-foreign-key",
+      "object": {
+        "schema": "schemalens",
+        "table": "posts",
+        "column": "author_id"
+      },
+      "message": "model relates column \"author_id\" of table \"posts\" to table \"users\", but no foreign key does that",
+      "fix": "Add a foreign key from column \"author_id\" of table \"posts\" to table \"users\": declare the relation in the model, then regenerate the migration and apply it (repair orphaned rows first).",
+      "source": {
+        "file": "models/schema.go",
+        "line": 40
+      }
+    },
+    {
+      "rule": "relation-without-foreign-key",
+      "object": {
+        "schema": "schemalens",
+        "table": "user_roles"
+      },
+      "message": "table \"user_roles\" is the join table for \"users\", \"roles\" in the model, but has no foreign key to table \"roles\"",
+      "fix": "Add a foreign key from table \"user_roles\" to table \"roles\": declare the many-to-many relation in the model so its join table references both sides, then regenerate the migration and apply it.",
+      "source": {
+        "file": "models/schema.go",
+        "line": 60
+      }
+    }
+  ]
+}

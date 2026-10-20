@@ -1,0 +1,28 @@
+{
+  "findings": [
+    {
+      "rule": "max-length-not-enforced",
+      "object": {
+        "schema": "public",
+        "table": "users",
+        "column": "bio"
+      },
+      "message": "model limits column \"bio\" of table \"users\" to 500 characters, but the database does not enforce it: neither the column type nor a CHECK constraint limits its length",
+      "fix": "Limit column \"bio\" of table \"users\" to 500 characters: keep the maximum length in the model, then regenerate the migration so the column gets a length-limited type or a CHECK on its length, and apply it."
+    },
+    {
+      "rule": "max-length-not-enforced",
+      "object": {
+        "schema": "public",
+        "table": "users",
+        "column": "name"
+      },
+      "message": "model limits column \"name\" of table \"users\" to 100 characters, but the database does not enforce it: the column type allows 255 characters",
+      "fix": "Limit column \"name\" of table \"users\" to 100 characters: keep the maximum length in the model, then regenerate the migration so the column gets a length-limited type or a CHECK on its length, and apply it.",
+      "source": {
+        "file": "models/schema.go",
+        "line": 12
+      }
+    }
+  ]
+}

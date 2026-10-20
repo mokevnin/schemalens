@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "products",
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "sku",
+          "max_length": 12
+        },
+        {
+          "name": "label",
+          "max_length": 20
+        }
+      ]
+    }
+  ]
+}

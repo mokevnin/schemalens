@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "users",
+      "primary_key": [
+        "id"
+      ],
+      "uniques": [
+        {
+          "columns": [
+            "email"
+          ]
+        }
+      ],
+      "columns": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "email",
+          "unique": true
+        },
+        {
+          "name": "handle",
+          "unique": true
+        }
+      ]
+    },
+    {
+      "name": "memberships",
+      "primary_key": [
+        "id"
+      ],
+      "uniques": [
+        {
+          "columns": [
+            "user_id",
+            "org_id"
+          ]
+        }
+      ],
+      "columns": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "org_id"
+        },
+        {
+          "name": "user_id"
+        }
+      ]
+    },
+    {
+      "name": "user_roles",
+      "primary_key": [
+        "user_id",
+        "role_id"
+      ],
+      "uniques": [
+        {
+          "columns": [
+            "role_id",
+            "user_id"
+          ]
+        }
+      ],
+      "columns": [
+        {
+          "name": "user_id"
+        },
+        {
+          "name": "role_id"
+        }
+      ]
+    }
+  ]
+}

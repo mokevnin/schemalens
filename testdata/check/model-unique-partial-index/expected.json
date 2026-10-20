@@ -1,0 +1,18 @@
+{
+  "findings": [
+    {
+      "rule": "unique-field-without-unique-index",
+      "object": {
+        "schema": "main",
+        "table": "users",
+        "column": "email"
+      },
+      "message": "model field for column \"email\" of table \"users\" is unique, but no unique index or primary key covers the column",
+      "fix": "Add a unique index on column \"email\" of table \"users\": keep the field unique in the model, then regenerate the migration and apply it (remove duplicate rows first).",
+      "source": {
+        "file": "models/schema.go",
+        "line": 7
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+CREATE TABLE posts (
+  id INTEGER PRIMARY KEY,
+  status VARCHAR(20) NOT NULL
+);

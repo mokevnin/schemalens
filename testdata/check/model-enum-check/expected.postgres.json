@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "rule": "enum-not-enforced",
+      "object": {
+        "schema": "public",
+        "table": "posts",
+        "column": "kind"
+      },
+      "message": "model restricts column \"kind\" of table \"posts\" to the values (\"a\", \"b\"), but the database does not enforce that: a CHECK constraint allows (\"a\", \"b\", \"c\")",
+      "fix": "Restrict column \"kind\" of table \"posts\" to the values (\"a\", \"b\"): keep the enum in the model, then regenerate the migration so the column becomes a native enum or gets a CHECK listing exactly these values, and apply it."
+    }
+  ]
+}

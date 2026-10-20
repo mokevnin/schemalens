@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "users",
+      "source": {
+        "file": "models/schema.go",
+        "line": 10
+      },
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "required": true
+        },
+        {
+          "name": "email",
+          "required": true,
+          "unique": true,
+          "source": {
+            "file": "models/schema.go",
+            "line": 14
+          }
+        },
+        {
+          "name": "handle",
+          "unique": true
+        },
+        {
+          "name": "slug",
+          "unique": true
+        }
+      ]
+    },
+    {
+      "name": "memberships",
+      "source": {
+        "file": "models/schema.go",
+        "line": 30
+      },
+      "primary_key": [
+        "id"
+      ],
+      "uniques": [
+        {
+          "columns": [
+            "user_id",
+            "org_id"
+          ]
+        }
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "required": true
+        },
+        {
+          "name": "org_id"
+        },
+        {
+          "name": "user_id"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "findings": [
+    {
+      "rule": "unique-field-without-unique-index",
+      "object": {
+        "schema": "public",
+        "table": "memberships",
+        "column": "user_id,org_id"
+      },
+      "message": "model declares columns \"user_id\", \"org_id\" of table \"memberships\" unique together, but no unique index or primary key covers them",
+      "fix": "Add a unique index on columns \"user_id\", \"org_id\" of table \"memberships\": keep the composite uniqueness in the model, then regenerate the migration and apply it (remove duplicate rows first).",
+      "source": {
+        "file": "models/schema.go",
+        "line": 30
+      }
+    },
+    {
+      "rule": "unique-field-without-unique-index",
+      "object": {
+        "schema": "public",
+        "table": "users",
+        "column": "email"
+      },
+      "message": "model field for column \"email\" of table \"users\" is unique, but no unique index or primary key covers the column",
+      "fix": "Add a unique index on column \"email\" of table \"users\": keep the field unique in the model, then regenerate the migration and apply it (remove duplicate rows first).",
+      "source": {
+        "file": "models/schema.go",
+        "line": 14
+      }
+    },
+    {
+      "rule": "unique-field-without-unique-index",
+      "object": {
+        "schema": "public",
+        "table": "users",
+        "column": "slug"
+      },
+      "message": "model field for column \"slug\" of table \"users\" is unique, but no unique index or primary key covers the column",
+      "fix": "Add a unique index on column \"slug\" of table \"users\": keep the field unique in the model, then regenerate the migration and apply it (remove duplicate rows first).",
+      "source": {
+        "file": "models/schema.go",
+        "line": 10
+      }
+    }
+  ]
+}

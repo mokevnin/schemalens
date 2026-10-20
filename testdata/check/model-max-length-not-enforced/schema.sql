@@ -1,0 +1,7 @@
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  code VARCHAR(10),
+  bio TEXT,
+  nick VARCHAR(20)
+);

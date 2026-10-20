@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "rule": "max-length-not-enforced",
+      "object": {
+        "schema": "public",
+        "table": "products",
+        "column": "label"
+      },
+      "message": "model limits column \"label\" of table \"products\" to 20 characters, but the database does not enforce it: a CHECK constraint allows 50 characters",
+      "fix": "Limit column \"label\" of table \"products\" to 20 characters: keep the maximum length in the model, then regenerate the migration so the column gets a length-limited type or a CHECK on its length, and apply it."
+    }
+  ]
+}

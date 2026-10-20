@@ -1,0 +1,18 @@
+{
+  "findings": [
+    {
+      "rule": "enum-not-enforced",
+      "object": {
+        "schema": "main",
+        "table": "posts",
+        "column": "status"
+      },
+      "message": "model restricts column \"status\" of table \"posts\" to the values (\"draft\", \"published\"), but the database does not enforce that: the column is neither a native enum nor covered by a CHECK listing values",
+      "fix": "Restrict column \"status\" of table \"posts\" to the values (\"draft\", \"published\"): keep the enum in the model, then regenerate the migration so the column becomes a native enum or gets a CHECK listing exactly these values, and apply it.",
+      "source": {
+        "file": "models/schema.go",
+        "line": 21
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "posts",
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "status",
+          "enum": [
+            "published",
+            "draft"
+          ]
+        },
+        {
+          "name": "kind",
+          "enum": [
+            "a",
+            "b"
+          ]
+        }
+      ]
+    }
+  ]
+}

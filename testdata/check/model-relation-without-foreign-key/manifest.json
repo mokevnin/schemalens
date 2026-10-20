@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "users",
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id"
+        }
+      ]
+    },
+    {
+      "name": "roles",
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id"
+        }
+      ]
+    },
+    {
+      "name": "posts",
+      "source": {
+        "file": "models/schema.go",
+        "line": 40
+      },
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "author_id"
+        },
+        {
+          "name": "editor_id"
+        }
+      ],
+      "relations": [
+        {
+          "columns": [
+            "author_id"
+          ],
+          "references": {
+            "table": "users"
+          }
+        },
+        {
+          "columns": [
+            "editor_id"
+          ],
+          "references": {
+            "table": "users"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user_roles",
+      "source": {
+        "file": "models/schema.go",
+        "line": 60
+      },
+      "primary_key": [
+        "user_id",
+        "role_id"
+      ],
+      "join_table_for": [
+        {
+          "table": "users"
+        },
+        {
+          "table": "roles"
+        }
+      ],
+      "columns": [
+        {
+          "name": "user_id"
+        },
+        {
+          "name": "role_id"
+        }
+      ]
+    }
+  ]
+}

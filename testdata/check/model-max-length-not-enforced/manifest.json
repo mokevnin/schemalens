@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "users",
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "name",
+          "max_length": 100,
+          "source": {
+            "file": "models/schema.go",
+            "line": 12
+          }
+        },
+        {
+          "name": "code",
+          "max_length": 10
+        },
+        {
+          "name": "bio",
+          "max_length": 500
+        },
+        {
+          "name": "nick",
+          "max_length": 20
+        }
+      ]
+    }
+  ]
+}
