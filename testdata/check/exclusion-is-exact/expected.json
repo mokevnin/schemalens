@@ -1,0 +1,13 @@
+{
+  "findings": [
+    {
+      "rule": "table-without-primary-key",
+      "object": {
+        "schema": "main",
+        "table": "events"
+      },
+      "message": "table \"events\" has no primary key",
+      "fix": "Declare a primary key for the model that maps to table \"events\" (for example an id field marked as the primary key), then regenerate the schema."
+    }
+  ]
+}

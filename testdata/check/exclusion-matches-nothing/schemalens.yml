@@ -1,0 +1,4 @@
+exclusions:
+  - rule: table-without-primary-key
+    object: main.gone
+    reason: table was dropped

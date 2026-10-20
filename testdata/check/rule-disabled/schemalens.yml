@@ -1,0 +1,3 @@
+rules:
+  table-without-primary-key:
+    enabled: false

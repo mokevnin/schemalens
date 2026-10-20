@@ -70,9 +70,15 @@ func Lookup(id string) (Rule, bool) {
 // Run executes every rule that applies to in.Dialect and returns the findings
 // in deterministic order.
 func Run(in Input) []finding.Finding {
+	return RunEnabled(in, nil)
+}
+
+// RunEnabled is Run restricted to the rules for which enabled returns true;
+// a nil enabled runs every rule.
+func RunEnabled(in Input, enabled func(ruleID string) bool) []finding.Finding {
 	out := []finding.Finding{}
 	for _, r := range All() {
-		if r.AppliesTo(in.Dialect) {
+		if r.AppliesTo(in.Dialect) && (enabled == nil || enabled(r.ID)) {
 			out = append(out, r.Check(in)...)
 		}
 	}

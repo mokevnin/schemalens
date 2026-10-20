@@ -1,0 +1,4 @@
+exclusions:
+  - rule: table-without-primary-key
+    object: main.audit_log
+    reason: append-only raw event log

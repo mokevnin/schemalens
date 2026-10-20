@@ -21,7 +21,8 @@ var update = flag.Bool("update", false, "rewrite golden files")
 // Golden cases live in testdata/check/<case>/:
 //
 //	schema.sql     DDL applied to a fresh SQLite database
-//	args           optional extra arguments, whitespace separated
+//	args           optional extra arguments, whitespace separated; {case} is this directory
+//	schemalens.yml optional configuration, passed as --config {case}/schemalens.yml in args
 //	expected.json  stdout of `schemalens check`
 //	exit_code      expected exit code
 //
@@ -44,7 +45,8 @@ func TestCheckGolden(t *testing.T) {
 
 			args := []string{"check", "--dsn", "sqlite://" + dbPath}
 			if extra, err := os.ReadFile(filepath.Join(dir, "args")); err == nil {
-				args = append(args, strings.Fields(string(extra))...)
+				// {case} expands to the case directory so args can point at a config file.
+				args = append(args, strings.Fields(strings.ReplaceAll(string(extra), "{case}", dir))...)
 			}
 			stdout, _, code := run(args...)
 
