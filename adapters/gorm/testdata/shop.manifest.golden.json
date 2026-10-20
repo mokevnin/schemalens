@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "app_users",
+      "source": {
+        "file": "models.go",
+        "line": 23
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 24
+          }
+        },
+        {
+          "name": "created_at",
+          "source": {
+            "file": "models.go",
+            "line": 24
+          }
+        },
+        {
+          "name": "updated_at",
+          "source": {
+            "file": "models.go",
+            "line": 24
+          }
+        },
+        {
+          "name": "deleted_at",
+          "source": {
+            "file": "models.go",
+            "line": 24
+          }
+        },
+        {
+          "name": "email",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 25
+          }
+        },
+        {
+          "name": "name",
+          "source": {
+            "file": "models.go",
+            "line": 26
+          }
+        },
+        {
+          "name": "nick",
+          "source": {
+            "file": "models.go",
+            "line": 27
+          }
+        },
+        {
+          "name": "home_street",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 14
+          }
+        },
+        {
+          "name": "home_city",
+          "source": {
+            "file": "models.go",
+            "line": 15
+          }
+        },
+        {
+          "name": "company_id",
+          "source": {
+            "file": "models.go",
+            "line": 31
+          }
+        },
+        {
+          "name": "last_login",
+          "source": {
+            "file": "models.go",
+            "line": 34
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "name": "app_orders",
+      "source": {
+        "file": "models.go",
+        "line": 37
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 38
+          }
+        },
+        {
+          "name": "buyer_id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 39
+          }
+        },
+        {
+          "name": "total",
+          "source": {
+            "file": "models.go",
+            "line": 40
+          }
+        },
+        {
+          "name": "placed_at",
+          "source": {
+            "file": "models.go",
+            "line": 41
+          }
+        },
+        {
+          "name": "created_by_user",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 20
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "name": "legacy_companies",
+      "source": {
+        "file": "models.go",
+        "line": 45
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 46
+          }
+        },
+        {
+          "name": "name",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 47
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "name": "tags",
+      "source": {
+        "file": "models.go",
+        "line": 55
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 56
+          }
+        },
+        {
+          "name": "title",
+          "source": {
+            "file": "models.go",
+            "line": 57
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ]
+    }
+  ]
+}

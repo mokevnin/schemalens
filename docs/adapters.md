@@ -57,3 +57,49 @@ cat <<'JSON'
 {"version": 1, "tables": [{"name": "users", "columns": [{"name": "email", "required": true}]}]}
 JSON
 ```
+
+## Built-in adapters and shared code
+
+Adapters live in `adapters/<name>/`, each a Go module of its own (module path
+`github.com/mokevnin/schemalens/adapters/<name>`, binary `schemalens-adapter-<name>`), so the core
+never depends on an ORM. All modules are listed in the `go.work` at the repo root. `mise run lint`
+and `mise run test` visit every `go.mod` in the repo (testdata excluded).
+
+Static-analysis code shared by Go adapters is the module `adapters/staticmodel`
+(`github.com/mokevnin/schemalens/adapters/staticmodel`). It is deliberately not under `internal/`
+(that visibility does not cross modules). It loads packages with `golang.org/x/tools/go/packages`
+and offers: `Load(dir, patterns...)`, `Program.Structs()` (named structs with fields, struct tags,
+types, project-relative positions), `Struct.Flatten(expand)` (embedded structs expanded; fields
+declared outside the project, like `gorm.Model`, take the position of the embedding field),
+`Struct.StringMethod` (a method that returns a string literal, e.g. `TableName`), `NamedType`,
+`HasMethod`. It knows no ORM; each adapter decides what a model is and what its tags mean. An
+adapter module requires it with a `replace ... => ../staticmodel` until the modules are published.
+
+### gorm (`adapters/gorm`)
+
+```
+schemalens check --dsn ... --adapter gorm [--adapter-arg ./models]... [--adapter-arg --config=file.yml]
+```
+
+Arguments are Go package patterns (default `./...`, or `packages` from the config). The project is
+not modified. A struct is a model when it embeds `gorm.Model`, has a `TableName` method or a config
+entry, or has `gorm` tags and is not merely embedded in another struct. Understood: embedded
+structs (anonymous or `embedded` with `embeddedPrefix`), `gorm.Model`, `column`, `not null`,
+`primaryKey` (default key: column `id`), `-`/`-:migration`/`-:all`; relations (`foreignKey`,
+`many2many`, ...) are recognised and are not columns. Table and column names come from gorm's own
+`schema.NamingStrategy`.
+
+What static analysis cannot see goes in `schemalens-gorm.yml` (project directory, or `--config`):
+
+```yaml
+naming:                    # schema.NamingStrategy
+  table_prefix: "app_"
+  singular_table: false
+  no_lower_case: false
+tables:                    # struct name (or importpath.Name) -> physical table name, verbatim
+  Company: legacy_companies
+exclude: [Scratch]         # look like models, are not
+```
+
+A `TableName` method returning a string literal is read as is; one computing its result makes the
+adapter fail, naming the struct and file:line, until `tables` supplies the name.

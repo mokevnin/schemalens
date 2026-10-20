@@ -7,16 +7,16 @@ description = "Build the schemalens binary into ./bin"
 run = "go build -o bin/schemalens ./cmd/schemalens"
 
 [tasks.test]
-description = "Run all tests, including golden tests"
-run = "go test ./..."
+description = "Run all tests, including golden tests, in every workspace module"
+run = "for d in $(find . -name go.mod -not -path '*/testdata/*' | xargs -n1 dirname); do (cd $d && go test ./...) || exit 1; done"
 
 [tasks.golden]
 description = "Rewrite golden files; review the diff before committing"
 run = "go test ./internal/cli -update"
 
 [tasks.lint]
-description = "Run golangci-lint"
-run = "golangci-lint run ./..."
+description = "Run golangci-lint in every workspace module"
+run = "for d in $(find . -name go.mod -not -path '*/testdata/*' | xargs -n1 dirname); do (cd $d && golangci-lint run ./...) || exit 1; done"
 
 [tasks.check]
 description = "Everything CI runs"

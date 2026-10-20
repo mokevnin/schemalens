@@ -1,0 +1,5 @@
+# Names gorm decides at run time and static analysis cannot see.
+naming:
+  table_prefix: "app_"   # gorm schema.NamingStrategy{TablePrefix: "app_"}
+tables:
+  Company: legacy_companies   # struct name -> physical table name, used verbatim
