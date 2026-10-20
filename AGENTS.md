@@ -24,3 +24,13 @@ This is a standalone project. It imports nothing from sphericon and uses none of
 - Everything in the repo is in English.
 - The single test seam is `schemalens check`: input is DDL (and a manifest), output is findings and
   the exit code. Tests assert that behavior, never which internal function ran.
+
+## Agent skills
+
+Engineering skills are installed from `mattpocock/skills` into `.claude/skills/` and pinned in
+`skills-lock.json` (`npx skills@latest update -y` refreshes them).
+
+- **Issue tracker:** GitHub Issues (`mokevnin/schemalens`) via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+- **Triage labels:** the default five-label vocabulary. See `docs/agents/triage-labels.md`.
+- **Domain docs:** single-context. A `GLOSSARY.md` at the repo root and `docs/adr/`, both created when the
+  first term or decision is resolved. See `docs/agents/domain.md`.
