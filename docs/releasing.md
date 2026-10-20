@@ -40,7 +40,9 @@ Nothing is published. `goreleaser check` validates the config alone.
 ## Decisions
 
 - **Nested module tags.** Go resolves a nested module from tags prefixed with its directory, so the
-  repo also gets `adapters/<name>/vX.Y.Z` for ent, gorm, bun and staticmodel at the release commit.
+  repo also gets `<dir>/vX.Y.Z` for every nested module (`adapters/ent`, `adapters/gorm`,
+  `adapters/bun`, `adapters/staticmodel`, `adapters/gormext`, `adapters/bunext`, `manifest`) at the
+  release commit. Add new nested modules to the list in `release.yml`.
   `release.yml` pushes them (skipping ones that exist). release-please does not manage them: it
   produces the single repo version only.
 - **Workspace builds.** gorm and bun require `adapters/staticmodel v0.0.0` through

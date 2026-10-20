@@ -40,8 +40,8 @@ jobs:
           ref: ${{ inputs.tag }}
       - name: Tag nested modules
         run: |
-          for m in ent gorm bun staticmodel; do
-            tag="adapters/$m/${{ inputs.tag }}"
+          for dir in adapters/ent adapters/gorm adapters/bun adapters/staticmodel adapters/gormext adapters/bunext manifest; do
+            tag="$dir/${{ inputs.tag }}"
             if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
               echo "$tag exists"
             else
