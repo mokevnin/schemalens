@@ -1,5 +1,5 @@
 CREATE TABLE users (
-  id INTEGER PRIMARY KEY,
+  id BIGINT NOT NULL PRIMARY KEY,
   email TEXT,
   nickname TEXT
 );
