@@ -49,21 +49,20 @@ func TestCheckGolden(t *testing.T) {
 	}
 }
 
-// pick returns the dialect-specific file name if it exists, else the shared one.
+// pick returns the dialect-specific file if it exists, else the shared one; the
+// bool reports whether the dialect-specific file was found.
 func pick(dir string, d dialect.Dialect, shared, specific string) (string, bool) {
-	for _, name := range []string{specific, shared} {
-		path := filepath.Join(dir, name)
-		if _, err := os.Stat(path); err == nil {
-			return path, true
-		}
+	path := filepath.Join(dir, specific)
+	if _, err := os.Stat(path); err == nil {
+		return path, true
 	}
 	return filepath.Join(dir, shared), false
 }
 
 func runGolden(t *testing.T, b backend, dir string) {
 	d := b.dialect
-	schemaFile, ok := pick(dir, d, "schema.sql", "schema."+string(d)+".sql")
-	if !ok {
+	schemaFile, _ := pick(dir, d, "schema.sql", "schema."+string(d)+".sql")
+	if _, err := os.Stat(schemaFile); err != nil {
 		t.Skipf("case has no schema for %s", d)
 	}
 	ddl, err := os.ReadFile(schemaFile)
