@@ -1,6 +1,8 @@
 package rules
 
 import (
+	"fmt"
+
 	"ariga.io/atlas/sql/schema"
 
 	"github.com/mokevnin/schemalens/internal/finding"
@@ -59,4 +61,30 @@ func sourceOf(t manifest.Table, c manifest.Column) *finding.Position {
 		return c.Source
 	}
 	return t.Source
+}
+
+// Unmapped returns a human-readable description of each manifest table the
+// model rules cannot compare because it has no database table: the table does
+// not exist, or its schema is omitted while the database has several. Model
+// rules skip these tables, so callers warn about them instead of letting the
+// comparison pass vacuously.
+func Unmapped(m *manifest.Manifest, r *schema.Realm) []string {
+	if m == nil || r == nil {
+		return nil
+	}
+	var out []string
+	for _, mt := range m.Tables {
+		s := findSchema(r, mt.Schema)
+		switch {
+		case s == nil && mt.Schema == "":
+			out = append(out, fmt.Sprintf("manifest table %q has no schema and the database has %d schemas; set the table's schema in the manifest, so it is not compared", mt.Name, len(r.Schemas)))
+		case s == nil:
+			out = append(out, fmt.Sprintf("manifest table %q.%q: the database has no schema %q; the table is not compared", mt.Schema, mt.Name, mt.Schema))
+		default:
+			if _, ok := s.Table(mt.Name); !ok {
+				out = append(out, fmt.Sprintf("manifest table %q does not exist in schema %q of the database; the table is not compared", mt.Name, s.Name))
+			}
+		}
+	}
+	return out
 }

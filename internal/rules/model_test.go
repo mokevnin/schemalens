@@ -1,6 +1,7 @@
 package rules_test
 
 import (
+	"strings"
 	"testing"
 
 	"ariga.io/atlas/sql/schema"
@@ -46,4 +47,26 @@ func run(in rules.Input) []finding.Finding {
 		}
 	}
 	return out
+}
+
+func TestUnmappedNamesTablesTheModelRulesSkip(t *testing.T) {
+	realm := schema.NewRealm(
+		schema.New("public").AddTables(schema.NewTable("users")),
+		schema.New("billing").AddTables(schema.NewTable("invoices")),
+	)
+	m := &manifest.Manifest{Version: 1, Tables: []manifest.Table{
+		{Schema: "public", Name: "users"},
+		{Name: "invoices"},
+		{Schema: "billing", Name: "ghosts"},
+		{Schema: "nowhere", Name: "users"},
+	}}
+	got := rules.Unmapped(m, realm)
+	if len(got) != 3 {
+		t.Fatalf("Unmapped = %q, want three warnings", got)
+	}
+	for i, want := range []string{`"invoices" has no schema`, `"ghosts" does not exist in schema "billing"`, `no schema "nowhere"`} {
+		if !strings.Contains(got[i], want) {
+			t.Errorf("warning %d = %q, want it to contain %q", i, got[i], want)
+		}
+	}
 }

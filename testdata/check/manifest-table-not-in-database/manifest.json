@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "ghosts",
+      "primary_key": ["id"],
+      "columns": [{"name": "id", "required": true}]
+    }
+  ]
+}

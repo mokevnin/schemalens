@@ -116,6 +116,9 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: rule %s skipped: does not apply to %s\n", r.ID, res.Dialect)
 	}
 	defer res.Close()
+	for _, w := range rules.Unmapped(model, res.Realm) {
+		_, _ = fmt.Fprintf(stderr, "schemalens check: warning: %s\n", w)
+	}
 	findings, err := rules.RunEnabled(context.Background(), rules.Input{
 		Dialect: res.Dialect, Realm: res.Realm, Manifest: model, DB: res.DB, RuleOptions: cfg.Options,
 	}, cfg.Enabled)
