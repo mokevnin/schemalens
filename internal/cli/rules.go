@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -83,7 +84,7 @@ func runExplain(args []string, stdout, stderr io.Writer) int {
 // parseFlags parses fs; done is true when the command must return code now.
 func parseFlags(fs *flag.FlagSet, args []string) (code int, done bool) {
 	if err := fs.Parse(args); err != nil {
-		if err == flag.ErrHelp {
+		if errors.Is(err, flag.ErrHelp) {
 			return ExitOK, true
 		}
 		return ExitUsage, true
