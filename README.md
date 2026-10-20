@@ -45,3 +45,9 @@ in `--format sarif` output as `runs[0].invocations[0]` (`executionSuccessful: fa
   changing a rule's explanation or adding a rule, run `mise run docs`; the test suite fails when a
   page is missing or stale.
 - [Writing an adapter](docs/adapters.md)
+
+## Inspired by
+
+[database_consistency](https://github.com/djezzzl/database_consistency), the Ruby tool that checks
+a database schema against ActiveRecord models. schemalens brings the same idea to Go, with
+structured findings built for coding agents.
