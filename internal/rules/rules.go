@@ -24,6 +24,13 @@ type Input struct {
 	// Manifest is the model, or nil when check runs without one. Rules that
 	// compare model with database return nothing when it is nil.
 	Manifest *manifest.Manifest
+	// RuleOptions looks up the configured options of a rule by id; nil means
+	// no rule has options. The engine narrows it to Options before calling a
+	// rule, so a rule reads only Options.
+	RuleOptions func(ruleID string) map[string]any
+	// Options are the options configured for the rule being checked, or nil.
+	// Rules that need configuration must stay inactive when it is absent.
+	Options map[string]any
 }
 
 // Explanation is the text behind `schemalens explain <rule>`.
@@ -95,7 +102,11 @@ func RunEnabled(in Input, enabled func(ruleID string) bool) []finding.Finding {
 	out := []finding.Finding{}
 	for _, r := range All() {
 		if r.AppliesTo(in.Dialect) && (enabled == nil || enabled(r.ID)) {
-			out = append(out, r.Check(in)...)
+			ri := in
+			if in.RuleOptions != nil {
+				ri.Options = in.RuleOptions(r.ID)
+			}
+			out = append(out, r.Check(ri)...)
 		}
 	}
 	finding.Sort(out)

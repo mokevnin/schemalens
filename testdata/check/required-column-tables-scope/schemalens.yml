@@ -1,0 +1,6 @@
+rules:
+  required-column:
+    options:
+      column: tenant_id
+      tables: [orders, invoices]
+      exclude_tables: [invoices]

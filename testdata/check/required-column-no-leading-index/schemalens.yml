@@ -1,0 +1,7 @@
+rules:
+  required-column:
+    options:
+      column: tenant_id
+      exclude_tables: [tenants]
+  fk-without-index:
+    enabled: false

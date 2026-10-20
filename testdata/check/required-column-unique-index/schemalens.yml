@@ -1,0 +1,5 @@
+rules:
+  required-column:
+    options:
+      column: tenant_id
+      exclude_tables: [tenants]

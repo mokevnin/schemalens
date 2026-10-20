@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "rule": "required-column",
+      "object": {
+        "schema": "main",
+        "table": "users",
+        "index": "users_email_uniq"
+      },
+      "message": "unique index \"users_email_uniq\" on \"users\" does not start with \"tenant_id\"",
+      "fix": "Declare the unique index \"users_email_uniq\" of table \"users\" with \"tenant_id\" as its first field, then regenerate the schema."
+    }
+  ]
+}
