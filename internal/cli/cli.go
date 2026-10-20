@@ -13,6 +13,7 @@ import (
 	"github.com/mokevnin/schemalens/internal/config"
 	"github.com/mokevnin/schemalens/internal/finding"
 	"github.com/mokevnin/schemalens/internal/inspect"
+	"github.com/mokevnin/schemalens/internal/manifest"
 	"github.com/mokevnin/schemalens/internal/rules"
 	"github.com/mokevnin/schemalens/internal/sarif"
 )
@@ -63,10 +64,21 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	format := fs.String("format", "json", "output format: json or sarif")
 	configPath := fs.String("config", "", "configuration file (default: schemalens.yml in the working directory, if present)")
 	manifestPath := fs.String("manifest", "", "model manifest (JSON) to compare with the database")
+	adapterName := fs.String("adapter", "", "run schemalens-adapter-<name> from PATH and use the manifest it prints")
+	var adapterArgs stringList
+	fs.Var(&adapterArgs, "adapter-arg", "argument passed to the adapter (repeatable)")
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return ExitOK
 		}
+		return ExitUsage
+	}
+	if *adapterName != "" && *manifestPath != "" {
+		_, _ = fmt.Fprintln(stderr, "schemalens check: --adapter and --manifest are mutually exclusive")
+		return ExitUsage
+	}
+	if len(adapterArgs) > 0 && *adapterName == "" {
+		_, _ = fmt.Fprintln(stderr, "schemalens check: --adapter-arg needs --adapter")
 		return ExitUsage
 	}
 	if *dsn == "" {
@@ -84,7 +96,13 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		return ExitUsage
 	}
 
-	model, code := loadManifest(*manifestPath, stderr)
+	var model *manifest.Manifest
+	var code int
+	if *adapterName != "" {
+		model, code = runAdapter(*adapterName, adapterArgs, stderr)
+	} else {
+		model, code = loadManifest(*manifestPath, stderr)
+	}
 	if code != ExitOK {
 		return code
 	}
