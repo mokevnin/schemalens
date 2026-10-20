@@ -1,0 +1,240 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "comments",
+      "source": {
+        "file": "testdata/sample/ent/schema/comment.go",
+        "line": 10
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true
+        },
+        {
+          "name": "text",
+          "required": true,
+          "source": {
+            "file": "testdata/sample/ent/schema/comment.go",
+            "line": 14
+          }
+        },
+        {
+          "name": "post_id",
+          "required": true,
+          "source": {
+            "file": "testdata/sample/ent/schema/comment.go",
+            "line": 15
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relations": [
+        {
+          "columns": [
+            "post_id"
+          ],
+          "references": {
+            "table": "posts"
+          },
+          "ref_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "groups",
+      "source": {
+        "file": "testdata/sample/ent/schema/group.go",
+        "line": 10
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true
+        },
+        {
+          "name": "title",
+          "required": true,
+          "source": {
+            "file": "testdata/sample/ent/schema/group.go",
+            "line": 14
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "name": "posts",
+      "source": {
+        "file": "testdata/sample/ent/schema/post.go",
+        "line": 10
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true
+        },
+        {
+          "name": "title",
+          "required": true,
+          "source": {
+            "file": "testdata/sample/ent/schema/post.go",
+            "line": 14
+          }
+        },
+        {
+          "name": "slug",
+          "required": true,
+          "unique": true,
+          "source": {
+            "file": "testdata/sample/ent/schema/post.go",
+            "line": 15
+          }
+        },
+        {
+          "name": "status",
+          "required": true,
+          "enum": [
+            "draft",
+            "published"
+          ],
+          "source": {
+            "file": "testdata/sample/ent/schema/post.go",
+            "line": 17
+          }
+        },
+        {
+          "name": "body",
+          "source": {
+            "file": "testdata/sample/ent/schema/post.go",
+            "line": 20
+          }
+        },
+        {
+          "name": "user_posts",
+          "required": true,
+          "source": {
+            "file": "testdata/sample/ent/schema/post.go",
+            "line": 27
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "relations": [
+        {
+          "columns": [
+            "user_posts"
+          ],
+          "references": {
+            "table": "users"
+          },
+          "ref_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "source": {
+        "file": "testdata/sample/ent/schema/user.go",
+        "line": 11
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true
+        },
+        {
+          "name": "created_at",
+          "required": true,
+          "source": {
+            "file": "testdata/sample/ent/schema/mixin.go",
+            "line": 16
+          }
+        },
+        {
+          "name": "updated_at",
+          "source": {
+            "file": "testdata/sample/ent/schema/mixin.go",
+            "line": 19
+          }
+        },
+        {
+          "name": "name",
+          "required": true,
+          "max_length": 100,
+          "source": {
+            "file": "testdata/sample/ent/schema/user.go",
+            "line": 19
+          }
+        },
+        {
+          "name": "email",
+          "required": true,
+          "unique": true,
+          "source": {
+            "file": "testdata/sample/ent/schema/user.go",
+            "line": 22
+          }
+        },
+        {
+          "name": "age",
+          "source": {
+            "file": "testdata/sample/ent/schema/user.go",
+            "line": 24
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "uniques": [
+        {
+          "columns": [
+            "name",
+            "age"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "user_groups",
+      "source": {
+        "file": "testdata/sample/ent/schema/user.go",
+        "line": 11
+      },
+      "columns": [
+        {
+          "name": "user_id",
+          "required": true
+        },
+        {
+          "name": "group_id",
+          "required": true
+        }
+      ],
+      "primary_key": [
+        "user_id",
+        "group_id"
+      ],
+      "join_table_for": [
+        {
+          "table": "users"
+        },
+        {
+          "table": "groups"
+        }
+      ]
+    }
+  ]
+}
