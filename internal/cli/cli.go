@@ -28,7 +28,7 @@ const (
 // process exit code. Results go to stdout, diagnostics to stderr.
 func Run(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		_, _ = fmt.Fprintln(stderr, "usage: schemalens <command> [flags]\ncommands: check, rules, explain, baseline")
+		_, _ = fmt.Fprintln(stderr, "usage: schemalens <command> [flags]\ncommands: check, rules, explain, baseline, manifest-schema")
 		return ExitUsage
 	}
 	switch args[0] {
@@ -43,7 +43,7 @@ func Run(args []string, stdout, stderr io.Writer) int {
 	case "manifest-schema":
 		return runManifestSchema(stdout, stderr)
 	default:
-		_, _ = fmt.Fprintf(stderr, "schemalens: unknown command %q\ncommands: check, rules, explain, baseline\n", args[0])
+		_, _ = fmt.Fprintf(stderr, "schemalens: unknown command %q\ncommands: check, rules, explain, baseline, manifest-schema\n", args[0])
 		return ExitUsage
 	}
 }
