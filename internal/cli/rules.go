@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"errors"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
