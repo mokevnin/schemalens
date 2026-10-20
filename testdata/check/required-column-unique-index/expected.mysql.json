@@ -1,7 +1,7 @@
 {
   "findings": [
     {
-      "rule": "required-column",
+      "rule": "required-column-unique-index",
       "object": {
         "schema": "schemalens",
         "table": "users",

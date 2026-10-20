@@ -54,6 +54,9 @@ type Rule struct {
 	// CheckDB is an alternative to Check for rules that query the database
 	// catalog through Input.DB; it is skipped when Input.DB is nil.
 	CheckDB func(context.Context, Input) ([]finding.Finding, error)
+	// Parent is the id of the rule that owns this rule's options and enabled
+	// switch, for rules that report one violation of a larger rule.
+	Parent string
 	// DefaultOff rules run only when the configuration enables them.
 	DefaultOff bool
 }

@@ -123,10 +123,13 @@ func (c *Config) validate() error {
 // Enabled reports whether the rule runs. Rules are enabled unless disabled,
 // except rules registered DefaultOff, which run only when enabled explicitly.
 func (c *Config) Enabled(ruleID string) bool {
+	r, _ := rules.Lookup(ruleID)
+	if r.Parent != "" && !c.Enabled(r.Parent) {
+		return false
+	}
 	if rc, ok := c.Rules[ruleID]; ok && rc.Enabled != nil {
 		return *rc.Enabled
 	}
-	r, _ := rules.Lookup(ruleID)
 	return !r.DefaultOff
 }
 

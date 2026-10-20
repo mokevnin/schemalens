@@ -14,6 +14,11 @@
 | [prefix-redundant-index](prefix-redundant-index.md) | mysql, postgres, sqlite | on |
 | [relation-without-foreign-key](relation-without-foreign-key.md) | mysql, postgres, sqlite | on |
 | [required-column](required-column.md) | mysql, postgres, sqlite | on |
+| [required-column-missing](required-column-missing.md) | mysql, postgres, sqlite | on |
+| [required-column-no-foreign-key](required-column-no-foreign-key.md) | mysql, postgres, sqlite | on |
+| [required-column-no-leading-index](required-column-no-leading-index.md) | mysql, postgres, sqlite | on |
+| [required-column-nullable](required-column-nullable.md) | mysql, postgres, sqlite | on |
+| [required-column-unique-index](required-column-unique-index.md) | mysql, postgres, sqlite | on |
 | [required-field-nullable-column](required-field-nullable-column.md) | mysql, postgres, sqlite | on |
 | [table-without-primary-key](table-without-primary-key.md) | mysql, postgres, sqlite | on |
 | [unique-field-without-unique-index](unique-field-without-unique-index.md) | mysql, postgres, sqlite | on |

@@ -1,7 +1,7 @@
 {
   "findings": [
     {
-      "rule": "required-column",
+      "rule": "required-column-nullable",
       "object": {
         "schema": "public",
         "table": "orders",

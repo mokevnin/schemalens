@@ -83,6 +83,35 @@ exclusions:
 	}
 }
 
+func TestBaselineOfRequiredColumnReportsANewViolationOnTheSameColumn(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "db.sqlite")
+	cfg := filepath.Join(t.TempDir(), "schemalens.yml")
+	dsn := "sqlite://" + dbPath
+	writeFile(t, cfg, "rules:\n  required-column:\n    options:\n      column: tenant_id\n      exclude_tables: [tenants]\n")
+	applyDDL(t, dbPath, `CREATE TABLE tenants (id BIGINT NOT NULL PRIMARY KEY);
+CREATE TABLE orders (id BIGINT NOT NULL PRIMARY KEY, tenant_id BIGINT NOT NULL);
+CREATE INDEX orders_tenant_idx ON orders (tenant_id);`)
+
+	if _, stderr, code := run("baseline", "--dsn", dsn, "--config", cfg); code != cli.ExitOK {
+		t.Fatalf("baseline exit code = %d (stderr: %s)", code, stderr)
+	}
+	if stdout, _, code := run("check", "--dsn", dsn, "--config", cfg); code != cli.ExitOK {
+		t.Fatalf("check after baseline: exit %d, stdout %s", code, stdout)
+	}
+
+	// The same column now also becomes nullable: a new violation.
+	applyDDL(t, dbPath, `DROP TABLE orders;
+CREATE TABLE orders (id BIGINT NOT NULL PRIMARY KEY, tenant_id BIGINT);
+CREATE INDEX orders_tenant_idx ON orders (tenant_id);`)
+	stdout, _, code := run("check", "--dsn", dsn, "--config", cfg)
+	if code != cli.ExitFindings || !strings.Contains(stdout, "is nullable") {
+		t.Errorf("new violation on the baselined column: exit %d, stdout %s", code, stdout)
+	}
+	if strings.Contains(stdout, "no foreign key") {
+		t.Errorf("the baselined violation must stay silenced: %s", stdout)
+	}
+}
+
 func readFile(t *testing.T, path string) string {
 	t.Helper()
 	b, err := os.ReadFile(path)

@@ -7,7 +7,7 @@
 
 ## Why
 
-Some columns must be present on every table of a kind, for example a column that scopes each row to its owner. The rule is configured with options: column (required, the column name), tables (optional, the tables it applies to; default all) and exclude_tables (optional, tables that are skipped). Without the column option the rule does nothing. It reports, separately, a table without the column, a column that is nullable, a column without a foreign key, a column without an index that starts with it, and each unique index that does not start with it.
+Some columns must be present on every table of a kind, for example a column that scopes each row to its owner. The required-column rule is configured under rules.required-column.options: column (required, the column name), tables (optional, the tables it applies to; default all) and exclude_tables (optional, tables that are skipped). Without the column option it does nothing. Each violation is reported under its own rule id, so an exclusion silences one violation only. The violations are: required-column-missing (a table without the column), required-column-nullable (a nullable column), required-column-no-foreign-key (a column without a foreign key), required-column-no-leading-index (a column no index starts with) and required-column-unique-index (a unique index that does not start with the column). Disabling required-column disables all of them.
 
 ## Fix
 

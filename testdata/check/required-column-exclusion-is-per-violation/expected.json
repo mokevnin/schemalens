@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "rule": "required-column-nullable",
+      "object": {
+        "schema": "main",
+        "table": "orders",
+        "column": "tenant_id"
+      },
+      "message": "column \"orders\".\"tenant_id\" is nullable",
+      "fix": "Make the \"tenant_id\" field of the model that maps to table \"orders\" required (NOT NULL) and regenerate the schema."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+rules:
+  required-column:
+    options:
+      column: tenant_id
+      exclude_tables: [tenants]
+exclusions:
+  - rule: required-column-no-foreign-key
+    object: main.orders.column:tenant_id
+    reason: tenants live in another database

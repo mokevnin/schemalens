@@ -1,0 +1,31 @@
+{
+  "findings": [
+    {
+      "rule": "required-column-no-foreign-key",
+      "object": {
+        "schema": "public",
+        "table": "orders",
+        "column": "tenant_id"
+      },
+      "message": "column \"orders\".\"tenant_id\" has no foreign key",
+      "fix": "Declare a relation from the \"tenant_id\" field of the model that maps to table \"orders\" to the table it refers to, and regenerate the schema."
+    },
+    {
+      "rule": "required-column-nullable",
+      "object": {
+        "schema": "public",
+        "table": "orders",
+        "column": "tenant_id"
+      },
+      "message": "column \"orders\".\"tenant_id\" is nullable",
+      "fix": "Make the \"tenant_id\" field of the model that maps to table \"orders\" required (NOT NULL) and regenerate the schema."
+    }
+  ],
+  "unmatched_exclusions": [
+    {
+      "rule": "required-column-no-foreign-key",
+      "object": "main.orders.column:tenant_id",
+      "reason": "tenants live in another database"
+    }
+  ]
+}
