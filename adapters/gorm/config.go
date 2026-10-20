@@ -1,13 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"errors"
-	"fmt"
-	"io"
-	"os"
-
-	"gopkg.in/yaml.v3"
 	"gorm.io/gorm/schema"
 )
 
@@ -40,27 +33,4 @@ func (c *config) namer() schema.NamingStrategy {
 		SingularTable: c.Naming.SingularTable,
 		NoLowerCase:   c.Naming.NoLowerCase,
 	}
-}
-
-// loadConfig reads path; an empty path means the default file, which is
-// optional. An explicitly named file must exist.
-func loadConfig(path string) (*config, error) {
-	explicit := path != ""
-	if !explicit {
-		path = defaultConfigFile
-	}
-	data, err := os.ReadFile(path)
-	if errors.Is(err, os.ErrNotExist) && !explicit {
-		return &config{}, nil
-	}
-	if err != nil {
-		return nil, fmt.Errorf("cannot read config: %w", err)
-	}
-	var c config
-	dec := yaml.NewDecoder(bytes.NewReader(data))
-	dec.KnownFields(true)
-	if err := dec.Decode(&c); err != nil && !errors.Is(err, io.EOF) {
-		return nil, fmt.Errorf("invalid config %s: %w", path, err)
-	}
-	return &c, nil
 }

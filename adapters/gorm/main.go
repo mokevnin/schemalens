@@ -11,50 +11,16 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
-	"fmt"
-	"io"
 	"os"
 
 	"github.com/mokevnin/schemalens/adapters/staticmodel"
 )
 
 func main() {
-	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
-}
-
-func run(args []string, stdout, stderr io.Writer) int {
-	fs := flag.NewFlagSet("schemalens-adapter-gorm", flag.ContinueOnError)
-	fs.SetOutput(stderr)
-	configPath := fs.String("config", "", "override file (default "+defaultConfigFile+" if present)")
-	if err := fs.Parse(args); err != nil {
-		return 2
-	}
-	cfg, err := loadConfig(*configPath)
-	if err != nil {
-		_, _ = fmt.Fprintln(stderr, "schemalens-adapter-gorm:", err)
-		return 2
-	}
-	patterns := fs.Args()
-	if len(patterns) == 0 {
-		patterns = cfg.Packages
-	}
-	prog, err := staticmodel.Load(".", patterns...)
-	if err != nil {
-		_, _ = fmt.Fprintln(stderr, "schemalens-adapter-gorm:", err)
-		return 1
-	}
-	m, err := analyze(prog, cfg)
-	if err != nil {
-		_, _ = fmt.Fprintln(stderr, "schemalens-adapter-gorm:", err)
-		return 1
-	}
-	out, err := json.MarshalIndent(m, "", "  ")
-	if err != nil {
-		_, _ = fmt.Fprintln(stderr, "schemalens-adapter-gorm:", err)
-		return 1
-	}
-	_, _ = fmt.Fprintf(stdout, "%s\n", out)
-	return 0
+	os.Exit(staticmodel.Run(staticmodel.Adapter[config]{
+		Name:       "gorm",
+		ConfigFile: defaultConfigFile,
+		Packages:   func(c *config) []string { return c.Packages },
+		Analyze:    analyze,
+	}, os.Args[1:], os.Stdout, os.Stderr))
 }

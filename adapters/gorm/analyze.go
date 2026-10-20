@@ -15,56 +15,10 @@ const (
 	timeTime  = "time.Time"
 )
 
-// The manifest document, version 1. Mirrors `schemalens manifest-schema`;
-// kept local so the adapter does not depend on the core module.
-type manifest struct {
-	Version int     `json:"version"`
-	Tables  []table `json:"tables"`
-}
-
-type table struct {
-	Schema     string     `json:"schema,omitempty"`
-	Name       string     `json:"name"`
-	Source     *position  `json:"source,omitempty"`
-	Columns    []column   `json:"columns"`
-	PrimaryKey []string   `json:"primary_key,omitempty"`
-	Uniques    []unique   `json:"uniques,omitempty"`
-	Relations  []relation `json:"relations,omitempty"`
-}
-
-type unique struct {
-	Columns []string `json:"columns"`
-}
-
-type relation struct {
-	Columns    []string `json:"columns"`
-	References tableRef `json:"references"`
-}
-
-type tableRef struct {
-	Schema string `json:"schema,omitempty"`
-	Table  string `json:"table"`
-}
-
-type column struct {
-	Name     string    `json:"name"`
-	Required bool      `json:"required,omitempty"`
-	Unique   bool      `json:"unique,omitempty"`
-	MaxLen   int       `json:"max_length,omitempty"`
-	Source   *position `json:"source,omitempty"`
-}
-
-type position struct {
-	File string `json:"file"`
-	Line int    `json:"line"`
-}
-
-func toPosition(p staticmodel.Position) *position { return &position{File: p.File, Line: p.Line} }
-
 // analyze turns the project's gorm structs into a manifest.
-func analyze(prog *staticmodel.Program, cfg *config) (*manifest, error) {
+func analyze(prog *staticmodel.Program, cfg *config) (*staticmodel.Manifest, error) {
 	embeddable := embeddedOnly(prog)
-	m := &manifest{Version: 1, Tables: []table{}}
+	m := &staticmodel.Manifest{Version: 1, Tables: []staticmodel.Table{}}
 	var built []*built
 	for _, s := range prog.Structs() {
 		if slices.Contains(cfg.Exclude, s.Name) || slices.Contains(cfg.Exclude, s.PkgPath+"."+s.Name) {
@@ -135,10 +89,8 @@ func buildTable(s *staticmodel.Struct, cfg *config) (*built, error) {
 	}
 	b := &built{strukt: s, fieldCols: map[string]string{}}
 	t := &b.table
-	*t = table{Name: name, Source: toPosition(s.Pos), Columns: []column{}}
-	if schema, rest, ok := strings.Cut(name, "."); ok {
-		t.Schema, t.Name = schema, rest
-	}
+	*t = staticmodel.Table{Name: name, Source: staticmodel.ToSource(s.Pos), Columns: []staticmodel.Column{}}
+	t.SplitSchema(name)
 
 	type pkCandidate struct {
 		col      string
@@ -174,7 +126,7 @@ func buildTable(s *staticmodel.Struct, cfg *config) (*built, error) {
 			if len(f.Path) >= d {
 				continue
 			}
-			t.Columns = slices.DeleteFunc(t.Columns, func(c column) bool { return c.Name == col })
+			t.Columns = slices.DeleteFunc(t.Columns, func(c staticmodel.Column) bool { return c.Name == col })
 			pks = slices.DeleteFunc(pks, func(p pkCandidate) bool { return p.col == col })
 			for name, cols := range groups {
 				groups[name] = slices.DeleteFunc(cols, func(c string) bool { return c == col })
@@ -183,13 +135,13 @@ func buildTable(s *staticmodel.Struct, cfg *config) (*built, error) {
 		depth[col] = len(f.Path)
 
 		explicitPK := tag.isSet("PRIMARYKEY") || tag.isSet("PRIMARY_KEY")
-		c := column{
+		c := staticmodel.Column{
 			Name:     col,
 			Required: tag.isSet("NOT NULL") || tag.isSet("NOTNULL") || explicitPK,
 			Unique:   tag.isSet("UNIQUE"),
-			Source:   toPosition(f.Pos),
+			Source:   staticmodel.ToSource(f.Pos),
 		}
-		if isString(f.Type) {
+		if staticmodel.IsString(f.Type) {
 			if n, err := strconv.Atoi(tag["SIZE"]); err == nil && n > 0 {
 				c.MaxLen = n
 			}
@@ -226,7 +178,7 @@ func buildTable(s *staticmodel.Struct, cfg *config) (*built, error) {
 				}
 			}
 		default:
-			t.Uniques = append(t.Uniques, unique{Columns: cols})
+			t.Uniques = append(t.Uniques, staticmodel.Unique{Columns: cols})
 		}
 	}
 	// An implicit "id" key is Required too.
@@ -352,17 +304,10 @@ func parseTag(tag string) tagSettings {
 
 // built is a table under construction, with what relations need to find it.
 type built struct {
-	table     table
+	table     staticmodel.Table
 	strukt    *staticmodel.Struct
 	fieldCols map[string]string // Go field name -> column
 	relFields []staticmodel.Field
-}
-
-func (b *built) ref() tableRef { return tableRef{Schema: b.table.Schema, Table: b.table.Name} }
-
-func isString(t types.Type) bool {
-	basic, ok := staticmodel.Deref(t).Underlying().(*types.Basic)
-	return ok && basic.Kind() == types.String
 }
 
 // addRelations records the foreign keys gorm infers from association fields:
@@ -396,7 +341,7 @@ func addRelations(all []*built) {
 					name = f.Name + "ID"
 				}
 				if col, ok := owner.fieldCols[name]; ok {
-					owner.table.Relations = append(owner.table.Relations, relation{Columns: []string{col}, References: target.ref()})
+					owner.table.Relations = append(owner.table.Relations, staticmodel.Relation{Columns: []string{col}, References: target.table.Ref()})
 					continue
 				}
 			}
@@ -405,7 +350,7 @@ func addRelations(all []*built) {
 				fk = owner.strukt.Name + "ID"
 			}
 			if col, ok := target.fieldCols[fk]; ok {
-				target.table.Relations = append(target.table.Relations, relation{Columns: []string{col}, References: owner.ref()})
+				target.table.Relations = append(target.table.Relations, staticmodel.Relation{Columns: []string{col}, References: owner.table.Ref()})
 			}
 		}
 	}

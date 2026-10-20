@@ -3,7 +3,6 @@ package main_test
 import (
 	"bytes"
 	"database/sql"
-	"errors"
 	"flag"
 	"os"
 	"os/exec"
@@ -11,71 +10,39 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mokevnin/schemalens/adapters/staticmodel/adaptertest"
 	_ "modernc.org/sqlite"
 )
 
 var update = flag.Bool("update", false, "rewrite golden files")
 
-var adapterBin, schemalensBin string
+var bins *adaptertest.Binaries
 
 func TestMain(m *testing.M) {
 	flag.Parse()
-	dir, err := os.MkdirTemp("", "gorm-adapter-test")
+	var err error
+	bins, err = adaptertest.Build("gorm", "github.com/mokevnin/schemalens/adapters/gorm")
 	if err != nil {
 		panic(err)
 	}
-	adapterBin = filepath.Join(dir, "schemalens-adapter-gorm")
-	schemalensBin = filepath.Join(dir, "schemalens")
-	for out, pkg := range map[string]string{
-		adapterBin:    "github.com/mokevnin/schemalens/adapters/gorm",
-		schemalensBin: "github.com/mokevnin/schemalens/cmd/schemalens",
-	} {
-		if b, err := exec.Command("go", "build", "-o", out, pkg).CombinedOutput(); err != nil {
-			panic(string(b))
-		}
-	}
 	code := m.Run()
-	_ = os.RemoveAll(dir)
+	bins.Close()
 	os.Exit(code)
 }
 
 // runIn runs bin in dir and returns stdout, stderr and the exit code.
 func runIn(t *testing.T, dir, bin string, args ...string) (string, string, int) {
 	t.Helper()
-	cmd := exec.Command(bin, args...)
-	cmd.Dir = dir
-	var out, errb bytes.Buffer
-	cmd.Stdout, cmd.Stderr = &out, &errb
-	err := cmd.Run()
-	code := 0
-	var ee *exec.ExitError
-	if errors.As(err, &ee) {
-		code = ee.ExitCode()
-	} else if err != nil {
-		t.Fatal(err)
-	}
-	return out.String(), errb.String(), code
+	return adaptertest.RunIn(t, os.Environ(), dir, bin, args...)
 }
 
 func golden(t *testing.T, path, got string) {
 	t.Helper()
-	if *update {
-		if err := os.WriteFile(path, []byte(got), 0o644); err != nil { //nolint:gosec // golden file
-			t.Fatal(err)
-		}
-		return
-	}
-	want, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(want) != got {
-		t.Errorf("%s differs from adapter output (rerun with -update to review):\n%s", path, got)
-	}
+	adaptertest.Golden(t, *update, path, got)
 }
 
 func TestSampleProjectManifestMatchesGolden(t *testing.T) {
-	stdout, stderr, code := runIn(t, "testdata/shop", adapterBin)
+	stdout, stderr, code := runIn(t, "testdata/shop", bins.Adapter)
 	if code != 0 {
 		t.Fatalf("exit %d: %s", code, stderr)
 	}
@@ -83,7 +50,7 @@ func TestSampleProjectManifestMatchesGolden(t *testing.T) {
 }
 
 func TestTableNameSetInCodeNeedsAnOverride(t *testing.T) {
-	_, stderr, code := runIn(t, "testdata/computed", adapterBin)
+	_, stderr, code := runIn(t, "testdata/computed", bins.Adapter)
 	if code == 0 {
 		t.Fatal("exit 0, want failure")
 	}
@@ -106,9 +73,9 @@ func TestAdapterRunsUnderSchemalensAdapterFlag(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cmd := exec.Command(schemalensBin, "check", "--dsn", "sqlite://"+dbPath, "--adapter", "gorm", "--adapter-arg", "./...")
+	cmd := exec.Command(bins.Schemalens, "check", "--dsn", "sqlite://"+dbPath, "--adapter", "gorm", "--adapter-arg", "./...")
 	cmd.Dir = "testdata/shop"
-	cmd.Env = append(os.Environ(), "PATH="+filepath.Dir(adapterBin)+string(os.PathListSeparator)+os.Getenv("PATH"))
+	cmd.Env = bins.PathEnv()
 	var errb bytes.Buffer
 	cmd.Stderr = &errb
 	_ = cmd.Run()
@@ -119,7 +86,7 @@ func TestAdapterRunsUnderSchemalensAdapterFlag(t *testing.T) {
 }
 
 func TestManifestFeedsSchemalensCheck(t *testing.T) {
-	manifest, stderr, code := runIn(t, "testdata/shop", adapterBin)
+	manifest, stderr, code := runIn(t, "testdata/shop", bins.Adapter)
 	if code != 0 {
 		t.Fatalf("exit %d: %s", code, stderr)
 	}
@@ -144,7 +111,7 @@ CREATE TABLE app_orders (id INTEGER PRIMARY KEY, buyer_id INTEGER NOT NULL);`)
 	if err != nil {
 		t.Fatal(err)
 	}
-	stdout, stderr, code := runIn(t, work, schemalensBin, "check", "--dsn", "sqlite://"+dbPath, "--config", cfg, "--manifest", mpath)
+	stdout, stderr, code := runIn(t, work, bins.Schemalens, "check", "--dsn", "sqlite://"+dbPath, "--config", cfg, "--manifest", mpath)
 	if code != 1 {
 		t.Fatalf("exit %d, want 1 (stderr: %s)\n%s", code, stderr, stdout)
 	}
