@@ -32,6 +32,8 @@ type User struct {
 	Secret    string `gorm:"-"`
 	notes     string
 	LastLogin sql.NullTime
+	Languages []Language `gorm:"many2many:user_languages"`
+	Friends   []*User    `gorm:"many2many:user_friends;joinForeignKey:UserRef;joinReferences:FriendRef"`
 }
 
 type Order struct {
@@ -40,6 +42,7 @@ type Order struct {
 	Total    int
 	PlacedAt time.Time
 	Audit
+	Items []Item `gorm:"many2many:order_items;foreignKey:ID;references:SKU"`
 }
 
 type Company struct {
@@ -63,4 +66,17 @@ func (Label) TableName() string { return "tags" }
 // Plain is not a model: no gorm tags, no gorm.Model.
 type Plain struct {
 	Value string
+}
+
+// Language is joined to User through user_languages; gorm names the join
+// table's columns user_id and language_id.
+type Language struct {
+	ID   uint
+	Code string `gorm:"not null"`
+}
+
+// Item is joined to Order on its SKU instead of its primary key.
+type Item struct {
+	ID  uint
+	SKU string `gorm:"unique;size:40"`
 }

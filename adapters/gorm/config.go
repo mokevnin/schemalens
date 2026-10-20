@@ -21,10 +21,15 @@ type config struct {
 	} `yaml:"naming"`
 	// Tables maps a struct name (or "importpath.Name" when two packages have
 	// the same name) to its physical table name, used verbatim. It covers
-	// TableName methods that cannot be read statically.
+	// TableName methods that cannot be read statically. A many2many name
+	// ("many2many:enrollments") may be a key too, for a join table renamed
+	// at run time.
 	Tables map[string]string `yaml:"tables"`
 	// Exclude lists structs that look like models but are not.
 	Exclude []string `yaml:"exclude"`
+
+	// joins is the analysis' result for main: which tables are join tables.
+	joins joinFor
 }
 
 func (c *config) namer() schema.NamingStrategy {

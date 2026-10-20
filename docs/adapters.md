@@ -89,8 +89,13 @@ structs (anonymous or `embedded` with `embeddedPrefix`), `gorm.Model`, `column`,
 `primaryKey` (default key: column `id`), `unique`, `uniqueIndex` (named shared indexes become composite
 uniques), `size` (string fields), `-`/`-:migration`/`-:all`. Relations are not columns: belongs-to,
 has-one and has-many with `foreignKey` or gorm's default key names become manifest `relations`;
-`many2many` is not covered yet. Table and column names come from gorm's own
-`schema.NamingStrategy`.
+`many2many:<name>` adds the join table as its own manifest table with `join_table_for` (the owner and
+the related table), so `relation-without-foreign-key` checks it. Its columns follow gorm: one per
+key field of each side (`<owner><PK>` and `<related><PK>`, e.g. `user_id`, `language_id`), or the
+names from `joinForeignKey` / `joinReferences`; `foreignKey` and `references` pick other key fields;
+a table joined to itself is handled as gorm does. The table name goes through the naming strategy
+as in gorm (so `table_prefix` applies); finding sources point at the relation field. Table and
+column names come from gorm's own `schema.NamingStrategy`.
 
 What static analysis cannot see goes in `schemalens-gorm.yml` (project directory, or `--config`):
 
@@ -101,6 +106,7 @@ naming:                    # schema.NamingStrategy
   no_lower_case: false
 tables:                    # struct name (or importpath.Name) -> physical table name, verbatim
   Company: legacy_companies
+  enrollments: legacy_enrollments   # a many2many name, for a join table renamed at run time
 exclude: [Scratch]         # look like models, are not
 ```
 

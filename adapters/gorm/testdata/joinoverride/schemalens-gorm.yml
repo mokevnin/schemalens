@@ -1,0 +1,2 @@
+tables:
+  enrollments: legacy_enrollments   # many2many name -> physical join table name, verbatim

@@ -11,16 +11,37 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	"io"
 	"os"
 
 	"github.com/mokevnin/schemalens/adapters/staticmodel"
 )
 
 func main() {
-	os.Exit(staticmodel.Run(staticmodel.Adapter[config]{
+	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
+}
+
+func run(args []string, stdout, stderr io.Writer) int {
+	var joins joinFor
+	var doc bytes.Buffer
+	code := staticmodel.Run(staticmodel.Adapter[config]{
 		Name:       "gorm",
 		ConfigFile: defaultConfigFile,
 		Packages:   func(c *config) []string { return c.Packages },
-		Analyze:    analyze,
-	}, os.Args[1:], os.Stdout, os.Stderr))
+		Analyze: func(p *staticmodel.Program, c *config) (*staticmodel.Manifest, error) {
+			m, err := analyze(p, c)
+			joins = c.joins
+			return m, err
+		},
+	}, args, &doc, stderr)
+	if code != 0 {
+		return code
+	}
+	if err := withJoinTableFor(stdout, doc.Bytes(), joins); err != nil {
+		_, _ = fmt.Fprintln(stderr, "schemalens-adapter-gorm:", err)
+		return 1
+	}
+	return 0
 }

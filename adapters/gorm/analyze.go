@@ -37,6 +37,9 @@ func analyze(prog *staticmodel.Program, cfg *config) (*staticmodel.Manifest, err
 	for _, b := range built {
 		m.Tables = append(m.Tables, b.table)
 	}
+	joinTables, joins := addJoinTables(built, cfg)
+	m.Tables = append(m.Tables, joinTables...)
+	cfg.joins = joins
 	return m, nil
 }
 
@@ -312,7 +315,7 @@ type built struct {
 
 // addRelations records the foreign keys gorm infers from association fields:
 // belongs-to puts the key on the declaring table, has-one and has-many on the
-// associated one. many2many is not covered: its join table is not a struct.
+// associated one. many2many has no key on either side; addJoinTables covers it.
 func addRelations(all []*built) {
 	byType := map[string]*built{}
 	for _, b := range all {

@@ -110,7 +110,7 @@
       "name": "app_orders",
       "source": {
         "file": "models.go",
-        "line": 37
+        "line": 39
       },
       "columns": [
         {
@@ -118,7 +118,7 @@
           "required": true,
           "source": {
             "file": "models.go",
-            "line": 38
+            "line": 40
           }
         },
         {
@@ -126,21 +126,21 @@
           "required": true,
           "source": {
             "file": "models.go",
-            "line": 39
+            "line": 41
           }
         },
         {
           "name": "total",
           "source": {
             "file": "models.go",
-            "line": 40
+            "line": 42
           }
         },
         {
           "name": "placed_at",
           "source": {
             "file": "models.go",
-            "line": 41
+            "line": 43
           }
         },
         {
@@ -170,7 +170,7 @@
       "name": "legacy_companies",
       "source": {
         "file": "models.go",
-        "line": 45
+        "line": 48
       },
       "columns": [
         {
@@ -178,7 +178,7 @@
           "required": true,
           "source": {
             "file": "models.go",
-            "line": 46
+            "line": 49
           }
         },
         {
@@ -186,7 +186,7 @@
           "required": true,
           "source": {
             "file": "models.go",
-            "line": 47
+            "line": 50
           }
         }
       ],
@@ -198,7 +198,7 @@
       "name": "tags",
       "source": {
         "file": "models.go",
-        "line": 55
+        "line": 58
       },
       "columns": [
         {
@@ -206,19 +206,187 @@
           "required": true,
           "source": {
             "file": "models.go",
-            "line": 56
+            "line": 59
           }
         },
         {
           "name": "title",
           "source": {
             "file": "models.go",
-            "line": 57
+            "line": 60
           }
         }
       ],
       "primary_key": [
         "id"
+      ]
+    },
+    {
+      "name": "app_languages",
+      "source": {
+        "file": "models.go",
+        "line": 73
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 74
+          }
+        },
+        {
+          "name": "code",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 75
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "name": "app_items",
+      "source": {
+        "file": "models.go",
+        "line": 79
+      },
+      "columns": [
+        {
+          "name": "id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 80
+          }
+        },
+        {
+          "name": "sku",
+          "unique": true,
+          "max_length": 40,
+          "source": {
+            "file": "models.go",
+            "line": 81
+          }
+        }
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "name": "app_user_languages",
+      "source": {
+        "file": "models.go",
+        "line": 35
+      },
+      "columns": [
+        {
+          "name": "user_id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 35
+          }
+        },
+        {
+          "name": "language_id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 35
+          }
+        }
+      ],
+      "primary_key": [
+        "user_id",
+        "language_id"
+      ],
+      "join_table_for": [
+        {
+          "table": "app_users"
+        },
+        {
+          "table": "app_languages"
+        }
+      ]
+    },
+    {
+      "name": "app_user_friends",
+      "source": {
+        "file": "models.go",
+        "line": 36
+      },
+      "columns": [
+        {
+          "name": "user_ref",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 36
+          }
+        },
+        {
+          "name": "friend_ref",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 36
+          }
+        }
+      ],
+      "primary_key": [
+        "user_ref",
+        "friend_ref"
+      ],
+      "join_table_for": [
+        {
+          "table": "app_users"
+        },
+        {
+          "table": "app_users"
+        }
+      ]
+    },
+    {
+      "name": "app_order_items",
+      "source": {
+        "file": "models.go",
+        "line": 45
+      },
+      "columns": [
+        {
+          "name": "order_id",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 45
+          }
+        },
+        {
+          "name": "item_sku",
+          "required": true,
+          "source": {
+            "file": "models.go",
+            "line": 45
+          }
+        }
+      ],
+      "primary_key": [
+        "order_id",
+        "item_sku"
+      ],
+      "join_table_for": [
+        {
+          "table": "app_orders"
+        },
+        {
+          "table": "app_items"
+        }
       ]
     }
   ]
