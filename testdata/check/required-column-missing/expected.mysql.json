@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "rule": "required-column",
+      "object": {
+        "schema": "schemalens",
+        "table": "orders",
+        "column": "tenant_id"
+      },
+      "message": "table \"orders\" has no column \"tenant_id\"",
+      "fix": "Add a \"tenant_id\" field to the model that maps to table \"orders\" and regenerate the schema."
+    }
+  ]
+}

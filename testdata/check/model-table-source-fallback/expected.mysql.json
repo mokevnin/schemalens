@@ -1,0 +1,18 @@
+{
+  "findings": [
+    {
+      "rule": "required-field-nullable-column",
+      "object": {
+        "schema": "schemalens",
+        "table": "users",
+        "column": "email"
+      },
+      "message": "model field for column \"email\" of table \"users\" is required, but the column is nullable",
+      "fix": "Make column \"email\" of table \"users\" NOT NULL: keep the field required in the model, then regenerate the migration and apply it so the database enforces what the model promises.",
+      "source": {
+        "file": "ent/schema/user.go",
+        "line": 12
+      }
+    }
+  ]
+}

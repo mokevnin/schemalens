@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "rule": "required-column",
+      "object": {
+        "schema": "public",
+        "table": "orders",
+        "column": "tenant_id"
+      },
+      "message": "column \"orders\".\"tenant_id\" is not the first column of any index",
+      "fix": "Add an index on table \"orders\" that starts with \"tenant_id\" (declare it on the model) and regenerate the schema."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "rule": "required-column",
+      "object": {
+        "schema": "schemalens",
+        "table": "orders",
+        "column": "tenant_id"
+      },
+      "message": "column \"orders\".\"tenant_id\" has no foreign key",
+      "fix": "Declare a relation from the \"tenant_id\" field of the model that maps to table \"orders\" to the table it refers to, and regenerate the schema."
+    }
+  ]
+}

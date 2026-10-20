@@ -2,7 +2,6 @@
   "version": 1,
   "tables": [
     {
-      "schema": "main",
       "name": "users",
       "source": {
         "file": "ent/schema/user.go",

@@ -15,9 +15,8 @@ const RequiredColumn = "required-column"
 
 func init() {
 	register(Rule{
-		ID: RequiredColumn,
-		// Only SQLite exists today; PostgreSQL and MySQL are added with the dialect ticket.
-		Dialects: []dialect.Dialect{dialect.SQLite},
+		ID:       RequiredColumn,
+		Dialects: dialect.All,
 		Explain: Explanation{
 			Why: "Some columns must be present on every table of a kind, for example a column that scopes each row to its owner. " +
 				"The rule is configured with options: column (required, the column name), tables (optional, the tables it applies to; default all) " +

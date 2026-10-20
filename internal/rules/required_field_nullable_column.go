@@ -15,7 +15,7 @@ const RequiredFieldNullableColumn = "required-field-nullable-column"
 func init() {
 	register(Rule{
 		ID:       RequiredFieldNullableColumn,
-		Dialects: []dialect.Dialect{dialect.SQLite},
+		Dialects: dialect.All,
 		Explain: Explanation{
 			Why:       "The model promises a value is always present, so the application skips null handling. Only a NOT NULL column makes the database enforce that promise; otherwise another writer or a bug can store null and break the assumption later.",
 			Fix:       "Keep the field required in the model and make the column NOT NULL: regenerate the migration from the model, backfill existing nulls, and apply it.",
