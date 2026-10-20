@@ -1,4 +1,4 @@
-package main
+package gormadapter
 
 import (
 	"gorm.io/gorm/schema"

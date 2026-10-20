@@ -69,7 +69,9 @@ returns the JSON Schema. See "Use as a library" in the README.
 
 Adapters live in `adapters/<name>/`, each a Go module of its own (module path
 `github.com/mokevnin/schemalens/adapters/<name>`, binary `schemalens-adapter-<name>`), so the core
-never depends on an ORM. All modules are listed in the `go.work` at the repo root. `mise run lint`
+never depends on an ORM. The module root is a library package (`entadapter`, `gormadapter`,
+`bunadapter`) with an exported `Run`; the binary is the tiny `cmd/schemalens-adapter-<name>` main over
+it, so `go install <module>/cmd/schemalens-adapter-<name>@<version>` yields the right name. All modules are listed in the `go.work` at the repo root. `mise run lint`
 and `mise run test` visit every `go.mod` in the repo (testdata excluded).
 
 Static-analysis code shared by Go adapters is the module `adapters/staticmodel`

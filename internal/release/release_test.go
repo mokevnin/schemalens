@@ -57,8 +57,8 @@ func TestGoreleaserBuildsCoreAndEachBuiltInAdapterSeparately(t *testing.T) {
 	want := map[string]string{
 		"schemalens":              "./cmd/schemalens",
 		"schemalens-adapter-ent":  "./cmd/schemalens-adapter-ent",
-		"schemalens-adapter-gorm": ".",
-		"schemalens-adapter-bun":  ".",
+		"schemalens-adapter-gorm": "./cmd/schemalens-adapter-gorm",
+		"schemalens-adapter-bun":  "./cmd/schemalens-adapter-bun",
 	}
 	for binary, main := range want {
 		found := false

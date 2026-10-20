@@ -1,4 +1,4 @@
-package main
+package bunadapter
 
 // defaultConfigFile is read from the project directory when --config is not given.
 const defaultConfigFile = "schemalens-bun.yml"

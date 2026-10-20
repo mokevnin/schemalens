@@ -2,7 +2,5 @@
 dist/
 
 # compiled adapter binaries (go build inside an adapter module)
-/adapters/bun/bun
-/adapters/gorm/gorm
 /adapters/ent/schemalens-adapter-ent
 /adapters/*/schemalens-adapter-*

@@ -1,4 +1,4 @@
-package main_test
+package gormadapter_test
 
 import (
 	"os"

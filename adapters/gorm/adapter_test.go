@@ -1,4 +1,4 @@
-package main_test
+package gormadapter_test
 
 import (
 	"bytes"
@@ -21,7 +21,7 @@ var bins *adaptertest.Binaries
 func TestMain(m *testing.M) {
 	flag.Parse()
 	var err error
-	bins, err = adaptertest.Build("gorm", "github.com/mokevnin/schemalens/adapters/gorm")
+	bins, err = adaptertest.Build("gorm", "github.com/mokevnin/schemalens/adapters/gorm/cmd/schemalens-adapter-gorm")
 	if err != nil {
 		panic(err)
 	}

@@ -29,7 +29,7 @@ builds:
   - id: adapter-gorm
     binary: schemalens-adapter-gorm
     dir: adapters/gorm
-    main: .
+    main: ./cmd/schemalens-adapter-gorm
     env: [CGO_ENABLED=0]
     goos: [linux, darwin, windows]
     goarch: [amd64, arm64]
@@ -38,7 +38,7 @@ builds:
   - id: adapter-bun
     binary: schemalens-adapter-bun
     dir: adapters/bun
-    main: .
+    main: ./cmd/schemalens-adapter-bun
     env: [CGO_ENABLED=0]
     goos: [linux, darwin, windows]
     goarch: [amd64, arm64]

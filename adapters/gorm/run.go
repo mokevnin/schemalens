@@ -1,29 +1,27 @@
-// Command schemalens-adapter-gorm reads a gorm project's models statically
+// Package gormadapter is the schemalens adapter for gorm. It reads a gorm project's models statically
 // (struct tags and field types, through the Go package loader; no project
 // code runs) and prints a schemalens manifest on stdout.
 //
-// Run it in the project directory:
+// Run it in the project directory (the schemalens-adapter-gorm command wraps Run):
 //
 //	schemalens check --dsn ... --adapter gorm [--adapter-arg ./models]... [--adapter-arg --config=other.yml]
 //
 // Arguments are Go package patterns (default ./...). --config names the
 // override file (default schemalens-gorm.yml in the project, if present).
-package main
+package gormadapter
 
 import (
 	"bytes"
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/mokevnin/schemalens/adapters/staticmodel"
 )
 
-func main() {
-	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
-}
-
-func run(args []string, stdout, stderr io.Writer) int {
+// Run is the adapter's entry point: args are the adapter arguments schemalens
+// passes through (--adapter-arg). It prints the manifest to stdout and returns
+// the exit code; failures go to stderr and leave stdout empty.
+func Run(args []string, stdout, stderr io.Writer) int {
 	var joins joinFor
 	var doc bytes.Buffer
 	code := staticmodel.Run(staticmodel.Adapter[config]{

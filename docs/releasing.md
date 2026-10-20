@@ -23,8 +23,10 @@ existing tag) to retry a failed release.
 
 Archives per platform (linux, darwin, windows; amd64, arm64), each its own build and archive so the
 core installs alone: `schemalens`, `schemalens-adapter-ent`, `schemalens-adapter-gorm`,
-`schemalens-adapter-bun`. Libraries (`adapters/staticmodel`, extended-mode packages) are not
-released as binaries.
+`schemalens-adapter-bun`. Each adapter binary is built from `adapters/<name>/cmd/schemalens-adapter-<name>`, so
+`go install <module>/cmd/schemalens-adapter-<name>@<version>` produces the same name. Libraries
+(`adapters/staticmodel`, extended-mode packages, the adapter root packages) are not released as
+binaries.
 
 The core module (`go.mod` at the root) requires no adapter module; a test in `internal/release`
 guards that.

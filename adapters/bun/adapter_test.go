@@ -1,4 +1,4 @@
-package main_test
+package bunadapter_test
 
 import (
 	"database/sql"
@@ -28,7 +28,7 @@ var bins *adaptertest.Binaries
 func TestMain(m *testing.M) {
 	flag.Parse()
 	var err error
-	bins, err = adaptertest.Build("bun", "github.com/mokevnin/schemalens/adapters/bun")
+	bins, err = adaptertest.Build("bun", "github.com/mokevnin/schemalens/adapters/bun/cmd/schemalens-adapter-bun")
 	if err != nil {
 		panic(err)
 	}
