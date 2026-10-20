@@ -5,5 +5,7 @@ use (
 	./adapters/bun
 	./adapters/ent
 	./adapters/gorm
+	./adapters/gormext
 	./adapters/staticmodel
+	./manifest
 )
