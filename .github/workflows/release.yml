@@ -1,0 +1,51 @@
+name: release
+
+# Builds and publishes the binaries for an existing vX.Y.Z tag, and pushes the matching tags
+# for the nested Go modules. Called by release-please.yml; run it by hand to retry a failed release.
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag, for example v0.1.0
+        type: string
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+      - uses: jdx/mise-action@v2
+      - run: goreleaser release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ inputs.tag }}
+
+  module-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Tag nested modules
+        run: |
+          for m in ent gorm bun staticmodel; do
+            tag="adapters/$m/${{ inputs.tag }}"
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
+              echo "$tag exists"
+            else
+              git tag "$tag"
+              git push origin "refs/tags/$tag"
+            fi
+          done

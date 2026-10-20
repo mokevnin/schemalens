@@ -1,0 +1,103 @@
+version: 2
+project_name: schemalens
+
+# One release, one version; the core and each built-in adapter are separate builds and separate
+# archives so the core can be installed alone. Libraries (staticmodel, extended-mode packages) are
+# not released as binaries.
+#
+# gorm and bun require adapters/staticmodel through a `replace ../staticmodel` directive, so they
+# only build from inside the repository. Goreleaser runs from the repo root, where go.work is
+# found, so every build below is a workspace build. Do not set GOWORK=off here.
+
+builds:
+  - id: schemalens
+    binary: schemalens
+    main: ./cmd/schemalens
+    env: [CGO_ENABLED=0]
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    ldflags: ["-s -w"]
+
+  - id: adapter-ent
+    binary: schemalens-adapter-ent
+    dir: adapters/ent
+    main: ./cmd/schemalens-adapter-ent
+    env: [CGO_ENABLED=0]
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    ldflags: ["-s -w"]
+
+  - id: adapter-gorm
+    binary: schemalens-adapter-gorm
+    dir: adapters/gorm
+    main: .
+    env: [CGO_ENABLED=0]
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    ldflags: ["-s -w"]
+
+  - id: adapter-bun
+    binary: schemalens-adapter-bun
+    dir: adapters/bun
+    main: .
+    env: [CGO_ENABLED=0]
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    ldflags: ["-s -w"]
+
+archives:
+  - id: schemalens
+    ids: [schemalens]
+    name_template: "schemalens_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - {goos: windows, formats: [zip]}
+    files: [LICENSE, README.md]
+
+  - id: adapter-ent
+    ids: [adapter-ent]
+    name_template: "schemalens-adapter-ent_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - {goos: windows, formats: [zip]}
+    files: [LICENSE]
+
+  - id: adapter-gorm
+    ids: [adapter-gorm]
+    name_template: "schemalens-adapter-gorm_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - {goos: windows, formats: [zip]}
+    files: [LICENSE]
+
+  - id: adapter-bun
+    ids: [adapter-bun]
+    name_template: "schemalens-adapter-bun_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - {goos: windows, formats: [zip]}
+    files: [LICENSE]
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  use: git
+  sort: asc
+  groups:
+    - {title: Breaking changes, regexp: '^.*?(\([[:word:]]+\))?!:.+$', order: 0}
+    - {title: Features, regexp: '^.*?feat(\([[:word:]\-]+\))?:.+$', order: 1}
+    - {title: Bug fixes, regexp: '^.*?fix(\([[:word:]\-]+\))?:.+$', order: 2}
+    - {title: Performance, regexp: '^.*?perf(\([[:word:]\-]+\))?:.+$', order: 3}
+    - {title: Other, order: 999}
+  filters:
+    exclude:
+      - '^docs(\(.+\))?:'
+      - '^test(\(.+\))?:'
+      - '^chore(\(.+\))?:'
+      - '^ci(\(.+\))?:'
+
+release:
+  # release-please creates the tag and a GitHub release; goreleaser attaches the archives and
+  # replaces the notes with its commit-message changelog.
+  mode: replace

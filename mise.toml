@@ -1,6 +1,7 @@
 [tools]
 go = "1.27.2"
 golangci-lint = "2.14.0"
+goreleaser = "2.18.3"
 
 [tasks.build]
 description = "Build the schemalens binary into ./bin"
@@ -8,7 +9,7 @@ run = "go build -o bin/schemalens ./cmd/schemalens"
 
 [tasks.test]
 description = "Run all tests, including golden tests, in every workspace module"
-run = "for d in $(find . -name go.mod -not -path '*/testdata/*' | xargs -n1 dirname); do (cd $d && go test ./...) || exit 1; done"
+run = "for d in $(find . -name go.mod -not -path '*/testdata/*' -not -path './.claude/*' | xargs -n1 dirname); do (cd $d && go test ./...) || exit 1; done"
 
 [tasks.golden]
 description = "Rewrite golden files; review the diff before committing"
@@ -20,7 +21,11 @@ run = "go run ./tools/ruledocs"
 
 [tasks.lint]
 description = "Run golangci-lint in every workspace module"
-run = "for d in $(find . -name go.mod -not -path '*/testdata/*' | xargs -n1 dirname); do (cd $d && golangci-lint run ./...) || exit 1; done"
+run = "for d in $(find . -name go.mod -not -path '*/testdata/*' -not -path './.claude/*' | xargs -n1 dirname); do (cd $d && golangci-lint run ./...) || exit 1; done"
+
+[tasks.release-snapshot]
+description = "Build every release archive locally without publishing (goreleaser snapshot into ./dist)"
+run = "goreleaser release --snapshot --clean"
 
 [tasks.check]
 description = "Everything CI runs"
