@@ -60,7 +60,9 @@ func mapTable(t *schema.Table, pos map[string]*position, src *sourceIndex, isJoi
 		out.Columns = append(out.Columns, col)
 	}
 	for _, idx := range t.Indexes {
-		if idx.Unique {
+		// A partial unique index (entsql.IndexWhere) promises uniqueness only among the rows its
+		// predicate selects, so it is not the unconditional claim the manifest's `uniques` makes.
+		if idx.Unique && (idx.Annotation == nil || idx.Annotation.Where == "") {
 			out.Uniques = append(out.Uniques, unique{Columns: columnNames(idx.Columns)})
 		}
 	}

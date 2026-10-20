@@ -50,7 +50,7 @@
       "name": "groups",
       "source": {
         "file": "testdata/sample/ent/schema/group.go",
-        "line": 10
+        "line": 12
       },
       "columns": [
         {
@@ -62,7 +62,7 @@
           "required": true,
           "source": {
             "file": "testdata/sample/ent/schema/group.go",
-            "line": 14
+            "line": 16
           }
         }
       ],
