@@ -1,14 +1,14 @@
-CREATE TABLE users (id INTEGER PRIMARY KEY);
-CREATE TABLE roles (id INTEGER PRIMARY KEY);
+CREATE TABLE users (id BIGINT NOT NULL PRIMARY KEY);
+CREATE TABLE roles (id BIGINT NOT NULL PRIMARY KEY);
 CREATE TABLE posts (
-  id INTEGER PRIMARY KEY,
-  author_id INTEGER NOT NULL,
-  editor_id INTEGER,
+  id BIGINT NOT NULL PRIMARY KEY,
+  author_id BIGINT NOT NULL,
+  editor_id BIGINT,
   FOREIGN KEY (editor_id) REFERENCES users (id)
 );
 CREATE TABLE user_roles (
-  user_id INTEGER NOT NULL,
-  role_id INTEGER NOT NULL,
+  user_id BIGINT NOT NULL,
+  role_id BIGINT NOT NULL,
   PRIMARY KEY (user_id, role_id),
   FOREIGN KEY (user_id) REFERENCES users (id)
 );
