@@ -1,0 +1,34 @@
+{
+  "findings": [
+    {
+      "rule": "prefix-redundant-index",
+      "object": {
+        "schema": "public",
+        "table": "memberships",
+        "index": "memberships_user_idx"
+      },
+      "message": "index \"memberships_user_idx\" on table \"memberships\" is redundant: its keys (user_id) are the leading keys of the primary key",
+      "fix": "Remove \"memberships_user_idx\" from the model (the primary key already serves its queries), then regenerate the schema."
+    },
+    {
+      "rule": "prefix-redundant-index",
+      "object": {
+        "schema": "public",
+        "table": "orders",
+        "index": "orders_customer_idx"
+      },
+      "message": "index \"orders_customer_idx\" on table \"orders\" is redundant: its keys (customer_id) are the leading keys of index \"orders_customer_status_idx\"",
+      "fix": "Remove \"orders_customer_idx\" from the model (index \"orders_customer_status_idx\" already serves its queries), then regenerate the schema."
+    },
+    {
+      "rule": "prefix-redundant-index",
+      "object": {
+        "schema": "public",
+        "table": "orders",
+        "index": "orders_placed_idx"
+      },
+      "message": "index \"orders_placed_idx\" on table \"orders\" is redundant: its keys (placed_at) are the leading keys of index \"orders_placed_uq\"",
+      "fix": "Remove \"orders_placed_idx\" from the model (index \"orders_placed_uq\" already serves its queries), then regenerate the schema."
+    }
+  ]
+}

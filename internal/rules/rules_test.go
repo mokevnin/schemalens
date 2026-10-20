@@ -11,10 +11,10 @@ import (
 
 // realmWithUnindexedFK has a foreign key with no index on its columns.
 func realmWithUnindexedFK() *schema.Realm {
-	id := schema.NewIntColumn("id", "int")
-	parentID := schema.NewIntColumn("parent_id", "int")
+	id := schema.NewIntColumn("id", "bigint")
+	parentID := schema.NewIntColumn("parent_id", "bigint")
 	parent := schema.NewTable("parent").AddColumns(id).SetPrimaryKey(schema.NewPrimaryKey(id))
-	child := schema.NewTable("child").AddColumns(schema.NewIntColumn("id", "int"), parentID)
+	child := schema.NewTable("child").AddColumns(schema.NewIntColumn("id", "bigint"), parentID)
 	child.SetPrimaryKey(schema.NewPrimaryKey(child.Columns[0]))
 	child.AddForeignKeys(schema.NewForeignKey("child_parent_fk").
 		AddColumns(parentID).SetRefTable(parent).AddRefColumns(id))

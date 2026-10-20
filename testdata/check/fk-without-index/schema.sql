@@ -1,8 +1,8 @@
 CREATE TABLE parent (
-  id INTEGER PRIMARY KEY
+  id BIGINT NOT NULL PRIMARY KEY
 );
 CREATE TABLE child (
-  id INTEGER PRIMARY KEY,
-  parent_id INTEGER NOT NULL,
+  id BIGINT NOT NULL PRIMARY KEY,
+  parent_id BIGINT NOT NULL,
   CONSTRAINT child_parent_fk FOREIGN KEY (parent_id) REFERENCES parent (id)
 );

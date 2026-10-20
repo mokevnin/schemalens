@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "rule": "duplicate-index",
+      "object": {
+        "schema": "public",
+        "table": "users",
+        "index": "users_email_idx"
+      },
+      "message": "index \"users_email_idx\" on table \"users\" duplicates index \"users_email_copy_idx\": both are keyed on (email)",
+      "fix": "Remove \"users_email_idx\" from the model (it adds write cost and no query benefit), then regenerate the schema."
+    },
+    {
+      "rule": "duplicate-index",
+      "object": {
+        "schema": "public",
+        "table": "users",
+        "index": "users_name_uq_copy"
+      },
+      "message": "unique index \"users_name_uq_copy\" on table \"users\" duplicates index \"users_name_uq\": both are keyed on (name, email)",
+      "fix": "Remove \"users_name_uq_copy\" from the model (it adds write cost and no query benefit), then regenerate the schema."
+    }
+  ]
+}

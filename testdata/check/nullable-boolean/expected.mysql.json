@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "rule": "nullable-boolean",
+      "object": {
+        "schema": "schemalens",
+        "table": "users",
+        "column": "active"
+      },
+      "message": "boolean column \"active\" on table \"users\" is nullable, so it has three states: true, false and NULL",
+      "fix": "Make the field mapped to column \"active\" required (non-nullable) with a default, backfill existing NULL rows, then regenerate the schema."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "findings": [
+    {
+      "rule": "narrow-key",
+      "object": {
+        "schema": "schemalens",
+        "table": "child",
+        "column": "parent_id",
+        "foreign_key": "child_parent_fk"
+      },
+      "message": "foreign key \"child_parent_fk\" column \"parent_id\" on table \"child\" is int (32 bits), narrower than 64 bits",
+      "fix": "Declare the field mapped to column \"parent_id\" as a 64-bit integer (bigint), matching the key it references, then regenerate the schema."
+    },
+    {
+      "rule": "narrow-key",
+      "object": {
+        "schema": "schemalens",
+        "table": "parent",
+        "column": "id"
+      },
+      "message": "primary key column \"id\" on table \"parent\" is int (32 bits), narrower than 64 bits",
+      "fix": "Declare the primary key field mapped to column \"id\" as a 64-bit integer (bigint), also on the foreign keys that reference it, then regenerate the schema."
+    },
+    {
+      "rule": "narrow-key",
+      "object": {
+        "schema": "schemalens",
+        "table": "small",
+        "column": "id"
+      },
+      "message": "primary key column \"id\" on table \"small\" is tinyint (8 bits), narrower than 64 bits",
+      "fix": "Declare the primary key field mapped to column \"id\" as a 64-bit integer (bigint), also on the foreign keys that reference it, then regenerate the schema."
+    }
+  ]
+}

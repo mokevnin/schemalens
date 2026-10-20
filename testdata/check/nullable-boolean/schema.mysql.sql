@@ -1,0 +1,6 @@
+CREATE TABLE users (
+  id BIGINT NOT NULL PRIMARY KEY,
+  active BOOLEAN,
+  verified TINYINT(1) NOT NULL DEFAULT 0,
+  score INTEGER
+);

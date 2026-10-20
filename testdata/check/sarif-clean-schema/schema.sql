@@ -1,9 +1,9 @@
 CREATE TABLE users (
-  id INTEGER PRIMARY KEY,
+  id BIGINT NOT NULL PRIMARY KEY,
   email TEXT NOT NULL
 );
 CREATE TABLE memberships (
-  user_id INTEGER NOT NULL,
-  team_id INTEGER NOT NULL,
+  user_id BIGINT NOT NULL,
+  team_id BIGINT NOT NULL,
   PRIMARY KEY (user_id, team_id)
 );
