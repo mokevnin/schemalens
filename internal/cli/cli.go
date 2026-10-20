@@ -60,6 +60,7 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	dsn := fs.String("dsn", "", "database to check, for example sqlite://path/to/db.sqlite")
 	format := fs.String("format", "json", "output format: json or sarif")
 	configPath := fs.String("config", "", "configuration file (default: schemalens.yml in the working directory, if present)")
+	manifestPath := fs.String("manifest", "", "model manifest (JSON) to compare with the database")
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return ExitOK
@@ -81,6 +82,11 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		return ExitUsage
 	}
 
+	model, code := loadManifest(*manifestPath, stderr)
+	if code != ExitOK {
+		return code
+	}
+
 	res, err := inspect.Inspect(context.Background(), *dsn)
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: %v\n", err)
@@ -89,7 +95,7 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	for _, r := range rules.Skipped(res.Dialect) {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: rule %s skipped: does not apply to %s\n", r.ID, res.Dialect)
 	}
-	findings := rules.RunEnabled(rules.Input{Dialect: res.Dialect, Realm: res.Realm}, cfg.Enabled)
+	findings := rules.RunEnabled(rules.Input{Dialect: res.Dialect, Realm: res.Realm, Manifest: model}, cfg.Enabled)
 	findings, unmatched := cfg.Apply(findings)
 
 	if *format == "sarif" {

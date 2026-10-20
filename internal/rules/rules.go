@@ -14,12 +14,16 @@ import (
 
 	"github.com/mokevnin/schemalens/internal/dialect"
 	"github.com/mokevnin/schemalens/internal/finding"
+	"github.com/mokevnin/schemalens/internal/manifest"
 )
 
 // Input is everything a rule may look at.
 type Input struct {
 	Dialect dialect.Dialect
 	Realm   *schema.Realm
+	// Manifest is the model, or nil when check runs without one. Rules that
+	// compare model with database return nothing when it is nil.
+	Manifest *manifest.Manifest
 }
 
 // Explanation is the text behind `schemalens explain <rule>`.

@@ -26,6 +26,7 @@ var update = flag.Bool("update", false, "rewrite golden files")
 //	expected.<dialect>.json  stdout for one dialect, instead of expected.json
 //	exit_code              expected exit code (exit_code.<dialect> likewise)
 //	stderr.<dialect>       optional text stderr must contain for that dialect
+//	stderr_contains        optional; every non-empty line must appear in stderr
 //
 // The schema name differs per dialect (main, public, schemalens), so cases
 // with findings carry per-dialect expected files. Every future rule adds a
@@ -104,8 +105,15 @@ func runGolden(t *testing.T, b backend, dir string) {
 	if strconv.Itoa(code) != strings.TrimSpace(string(wantCode)) {
 		t.Errorf("exit code = %d, want %s", code, wantCode)
 	}
-	if !json.Valid([]byte(stdout)) {
+	if code != cli.ExitUsage && !json.Valid([]byte(stdout)) {
 		t.Errorf("stdout is not valid JSON: %s", stdout)
+	}
+	if want, err := os.ReadFile(filepath.Join(dir, "stderr_contains")); err == nil {
+		for _, line := range strings.Split(string(want), "\n") {
+			if line != "" && !strings.Contains(stderr, line) {
+				t.Errorf("stderr does not contain %q\n--- stderr\n%s", line, stderr)
+			}
+		}
 	}
 	if wantErr, err := os.ReadFile(filepath.Join(dir, "stderr."+string(d))); err == nil {
 		if !strings.Contains(stderr, strings.TrimSpace(string(wantErr))) {
