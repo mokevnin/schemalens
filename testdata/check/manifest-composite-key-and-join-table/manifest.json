@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "tables": [
+    {"name": "users", "primary_key": ["id"], "columns": [{"name": "id", "required": true}]},
+    {"name": "roles", "primary_key": ["id"], "columns": [{"name": "id", "required": true}]},
+    {
+      "name": "user_roles",
+      "primary_key": ["user_id", "role_id"],
+      "join_table_for": [{"table": "users"}, {"table": "roles"}],
+      "columns": [
+        {"name": "user_id", "required": true},
+        {"name": "role_id", "required": true}
+      ]
+    }
+  ]
+}

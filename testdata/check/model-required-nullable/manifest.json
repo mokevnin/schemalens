@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "schema": "main",
+      "name": "users",
+      "source": {
+        "file": "ent/schema/user.go",
+        "line": 12
+      },
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "required": true
+        },
+        {
+          "name": "email",
+          "required": true,
+          "source": {
+            "file": "ent/schema/user.go",
+            "line": 18
+          }
+        },
+        {
+          "name": "nickname"
+        }
+      ]
+    }
+  ]
+}

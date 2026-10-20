@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "users",
+      "source": {
+        "file": "ent/schema/user.go",
+        "line": 12
+      },
+      "columns": [
+        {
+          "name": "email",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

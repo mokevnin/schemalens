@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "schema": "billing",
+      "name": "users",
+      "columns": [
+        {
+          "name": "email",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
