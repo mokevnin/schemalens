@@ -68,6 +68,52 @@
           "items": { "$ref": "#/$defs/tableRef" },
           "minItems": 2,
           "maxItems": 2
+        },
+        "uniques": {
+          "description": "Composite (or single-column) uniqueness the model promises. A single column can also set unique on the column.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/unique" }
+        },
+        "relations": {
+          "description": "Relations the model stores as a foreign key on this table. Many-to-many relations use join_table_for on the join table.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/relation" }
+        }
+      }
+    },
+    "columnNames": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "unique": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns"],
+      "properties": {
+        "columns": {
+          "description": "Physical names of the columns that are unique together.",
+          "$ref": "#/$defs/columnNames"
+        }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns", "references"],
+      "properties": {
+        "columns": {
+          "description": "Physical names of the referencing columns on this table.",
+          "$ref": "#/$defs/columnNames"
+        },
+        "references": {
+          "description": "The referenced table.",
+          "$ref": "#/$defs/tableRef"
+        },
+        "ref_columns": {
+          "description": "Referenced columns, in the order of columns. Omit to check only the referenced table.",
+          "$ref": "#/$defs/columnNames"
         }
       }
     },
@@ -80,6 +126,22 @@
         "required": {
           "description": "True when the model field cannot be null.",
           "type": "boolean"
+        },
+        "unique": {
+          "description": "True when the model field alone must be unique.",
+          "type": "boolean"
+        },
+        "max_length": {
+          "description": "Maximum length of the string value, in characters.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "enum": {
+          "description": "The only values the model field accepts.",
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "uniqueItems": true
         },
         "source": { "$ref": "#/$defs/position" }
       }

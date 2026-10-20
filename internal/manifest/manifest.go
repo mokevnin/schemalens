@@ -48,6 +48,26 @@ type Table struct {
 	Columns      []Column          `json:"columns"`
 	PrimaryKey   []string          `json:"primary_key,omitempty"`
 	JoinTableFor []TableRef        `json:"join_table_for,omitempty"`
+	Uniques      []Unique          `json:"uniques,omitempty"`
+	Relations    []Relation        `json:"relations,omitempty"`
+}
+
+// Unique is a uniqueness the model promises over one or more columns. Single
+// columns are usually declared with Column.Unique; this form carries
+// composite uniqueness.
+type Unique struct {
+	Columns []string `json:"columns"`
+}
+
+// Relation is a model relation stored as a foreign key: Columns of the table
+// reference References. Many-to-many relations are declared with
+// Table.JoinTableFor on the join table instead.
+type Relation struct {
+	Columns    []string `json:"columns"`
+	References TableRef `json:"references"`
+	// RefColumns are the referenced columns, in the order of Columns. Empty
+	// means "the referenced table's key", and the column match is not checked.
+	RefColumns []string `json:"ref_columns,omitempty"`
 }
 
 // TableRef names a table, for relations between tables.
@@ -60,6 +80,9 @@ type TableRef struct {
 type Column struct {
 	Name     string            `json:"name"`
 	Required bool              `json:"required,omitempty"`
+	Unique   bool              `json:"unique,omitempty"`     // the field alone is unique
+	MaxLen   int               `json:"max_length,omitempty"` // maximum string length in characters
+	Enum     []string          `json:"enum,omitempty"`       // the only values the field accepts
 	Source   *finding.Position `json:"source,omitempty"`
 }
 
