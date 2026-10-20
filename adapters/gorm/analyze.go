@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/types"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/mokevnin/schemalens/adapters/staticmodel"
@@ -22,16 +23,34 @@ type manifest struct {
 }
 
 type table struct {
-	Schema     string    `json:"schema,omitempty"`
-	Name       string    `json:"name"`
-	Source     *position `json:"source,omitempty"`
-	Columns    []column  `json:"columns"`
-	PrimaryKey []string  `json:"primary_key,omitempty"`
+	Schema     string     `json:"schema,omitempty"`
+	Name       string     `json:"name"`
+	Source     *position  `json:"source,omitempty"`
+	Columns    []column   `json:"columns"`
+	PrimaryKey []string   `json:"primary_key,omitempty"`
+	Uniques    []unique   `json:"uniques,omitempty"`
+	Relations  []relation `json:"relations,omitempty"`
+}
+
+type unique struct {
+	Columns []string `json:"columns"`
+}
+
+type relation struct {
+	Columns    []string `json:"columns"`
+	References tableRef `json:"references"`
+}
+
+type tableRef struct {
+	Schema string `json:"schema,omitempty"`
+	Table  string `json:"table"`
 }
 
 type column struct {
 	Name     string    `json:"name"`
 	Required bool      `json:"required,omitempty"`
+	Unique   bool      `json:"unique,omitempty"`
+	MaxLen   int       `json:"max_length,omitempty"`
 	Source   *position `json:"source,omitempty"`
 }
 
@@ -46,6 +65,7 @@ func toPosition(p staticmodel.Position) *position { return &position{File: p.Fil
 func analyze(prog *staticmodel.Program, cfg *config) (*manifest, error) {
 	embeddable := embeddedOnly(prog)
 	m := &manifest{Version: 1, Tables: []table{}}
+	var built []*built
 	for _, s := range prog.Structs() {
 		if slices.Contains(cfg.Exclude, s.Name) || slices.Contains(cfg.Exclude, s.PkgPath+"."+s.Name) {
 			continue
@@ -53,11 +73,15 @@ func analyze(prog *staticmodel.Program, cfg *config) (*manifest, error) {
 		if !isModel(s, cfg, embeddable) {
 			continue
 		}
-		t, err := buildTable(s, cfg)
+		b, err := buildTable(s, cfg)
 		if err != nil {
 			return nil, err
 		}
-		m.Tables = append(m.Tables, t)
+		built = append(built, b)
+	}
+	addRelations(built)
+	for _, b := range built {
+		m.Tables = append(m.Tables, b.table)
 	}
 	return m, nil
 }
@@ -103,13 +127,15 @@ func lookupTable(cfg *config, s *staticmodel.Struct) (string, bool) {
 	return v, ok
 }
 
-func buildTable(s *staticmodel.Struct, cfg *config) (table, error) {
+func buildTable(s *staticmodel.Struct, cfg *config) (*built, error) {
 	namer := cfg.namer()
 	name, err := tableName(s, cfg)
 	if err != nil {
-		return table{}, err
+		return nil, err
 	}
-	t := table{Name: name, Source: toPosition(s.Pos), Columns: []column{}}
+	b := &built{strukt: s, fieldCols: map[string]string{}}
+	t := &b.table
+	*t = table{Name: name, Source: toPosition(s.Pos), Columns: []column{}}
 	if schema, rest, ok := strings.Cut(name, "."); ok {
 		t.Schema, t.Name = schema, rest
 	}
@@ -119,13 +145,19 @@ func buildTable(s *staticmodel.Struct, cfg *config) (table, error) {
 		explicit bool
 	}
 	var pks []pkCandidate
+	groups := map[string][]string{} // named unique indexes: name -> columns
+	var groupOrder []string
 	depth := map[string]int{}
 	for _, f := range s.Flatten(isEmbedding) {
 		if !f.Exported {
 			continue
 		}
 		tag := parseTag(f.Tag.Get("gorm"))
-		if tag.ignoredByMigration() || isRelation(f, tag) {
+		if tag.ignoredByMigration() {
+			continue
+		}
+		if isRelation(f, tag) {
+			b.relFields = append(b.relFields, f)
 			continue
 		}
 		col := f.Name
@@ -144,15 +176,36 @@ func buildTable(s *staticmodel.Struct, cfg *config) (table, error) {
 			}
 			t.Columns = slices.DeleteFunc(t.Columns, func(c column) bool { return c.Name == col })
 			pks = slices.DeleteFunc(pks, func(p pkCandidate) bool { return p.col == col })
+			for name, cols := range groups {
+				groups[name] = slices.DeleteFunc(cols, func(c string) bool { return c == col })
+			}
 		}
 		depth[col] = len(f.Path)
 
 		explicitPK := tag.isSet("PRIMARYKEY") || tag.isSet("PRIMARY_KEY")
-		t.Columns = append(t.Columns, column{
+		c := column{
 			Name:     col,
 			Required: tag.isSet("NOT NULL") || tag.isSet("NOTNULL") || explicitPK,
+			Unique:   tag.isSet("UNIQUE"),
 			Source:   toPosition(f.Pos),
-		})
+		}
+		if isString(f.Type) {
+			if n, err := strconv.Atoi(tag["SIZE"]); err == nil && n > 0 {
+				c.MaxLen = n
+			}
+		}
+		if v, ok := tag["UNIQUEINDEX"]; ok {
+			if name, _, _ := strings.Cut(v, ","); name == "" {
+				c.Unique = true
+			} else {
+				if _, seen := groups[name]; !seen {
+					groupOrder = append(groupOrder, name)
+				}
+				groups[name] = append(groups[name], col)
+			}
+		}
+		t.Columns = append(t.Columns, c)
+		b.fieldCols[f.Name] = col
 		if explicitPK || col == "id" {
 			pks = append(pks, pkCandidate{col: col, explicit: explicitPK})
 		}
@@ -163,6 +216,19 @@ func buildTable(s *staticmodel.Struct, cfg *config) (table, error) {
 			t.PrimaryKey = append(t.PrimaryKey, p.col)
 		}
 	}
+	for _, name := range groupOrder {
+		switch cols := groups[name]; len(cols) {
+		case 0:
+		case 1:
+			for i := range t.Columns {
+				if t.Columns[i].Name == cols[0] {
+					t.Columns[i].Unique = true
+				}
+			}
+		default:
+			t.Uniques = append(t.Uniques, unique{Columns: cols})
+		}
+	}
 	// An implicit "id" key is Required too.
 	if !explicit {
 		for i := range t.Columns {
@@ -171,7 +237,7 @@ func buildTable(s *staticmodel.Struct, cfg *config) (table, error) {
 			}
 		}
 	}
-	return t, nil
+	return b, nil
 }
 
 func tableName(s *staticmodel.Struct, cfg *config) (string, error) {
@@ -282,4 +348,65 @@ func parseTag(tag string) tagSettings {
 		out[k] = strings.TrimSpace(v)
 	}
 	return out
+}
+
+// built is a table under construction, with what relations need to find it.
+type built struct {
+	table     table
+	strukt    *staticmodel.Struct
+	fieldCols map[string]string // Go field name -> column
+	relFields []staticmodel.Field
+}
+
+func (b *built) ref() tableRef { return tableRef{Schema: b.table.Schema, Table: b.table.Name} }
+
+func isString(t types.Type) bool {
+	basic, ok := staticmodel.Deref(t).Underlying().(*types.Basic)
+	return ok && basic.Kind() == types.String
+}
+
+// addRelations records the foreign keys gorm infers from association fields:
+// belongs-to puts the key on the declaring table, has-one and has-many on the
+// associated one. many2many is not covered: its join table is not a struct.
+func addRelations(all []*built) {
+	byType := map[string]*built{}
+	for _, b := range all {
+		byType[b.strukt.PkgPath+"."+b.strukt.Name] = b
+	}
+	for _, owner := range all {
+		for _, f := range owner.relFields {
+			tag := parseTag(f.Tag.Get("gorm"))
+			if tag.isSet("MANY2MANY") {
+				continue
+			}
+			elem := staticmodel.Deref(f.Type)
+			many := false
+			if sl, ok := elem.Underlying().(*types.Slice); ok {
+				elem, many = staticmodel.Deref(sl.Elem()), true
+			}
+			target := byType[staticmodel.NamedType(elem)]
+			if target == nil {
+				continue
+			}
+			fk := tag["FOREIGNKEY"]
+			if !many {
+				// belongs-to: the key is a field of the declaring struct.
+				name := fk
+				if name == "" {
+					name = f.Name + "ID"
+				}
+				if col, ok := owner.fieldCols[name]; ok {
+					owner.table.Relations = append(owner.table.Relations, relation{Columns: []string{col}, References: target.ref()})
+					continue
+				}
+			}
+			// has-one / has-many: the key is a field of the associated struct.
+			if fk == "" {
+				fk = owner.strukt.Name + "ID"
+			}
+			if col, ok := target.fieldCols[fk]; ok {
+				target.table.Relations = append(target.table.Relations, relation{Columns: []string{col}, References: owner.ref()})
+			}
+		}
+	}
 }

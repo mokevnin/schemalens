@@ -85,8 +85,10 @@ Arguments are Go package patterns (default `./...`, or `packages` from the confi
 not modified. A struct is a model when it embeds `gorm.Model`, has a `TableName` method or a config
 entry, or has `gorm` tags and is not merely embedded in another struct. Understood: embedded
 structs (anonymous or `embedded` with `embeddedPrefix`), `gorm.Model`, `column`, `not null`,
-`primaryKey` (default key: column `id`), `-`/`-:migration`/`-:all`; relations (`foreignKey`,
-`many2many`, ...) are recognised and are not columns. Table and column names come from gorm's own
+`primaryKey` (default key: column `id`), `unique`, `uniqueIndex` (named shared indexes become composite
+uniques), `size` (string fields), `-`/`-:migration`/`-:all`. Relations are not columns: belongs-to,
+has-one and has-many with `foreignKey` or gorm's default key names become manifest `relations`;
+`many2many` is not covered yet. Table and column names come from gorm's own
 `schema.NamingStrategy`.
 
 What static analysis cannot see goes in `schemalens-gorm.yml` (project directory, or `--config`):

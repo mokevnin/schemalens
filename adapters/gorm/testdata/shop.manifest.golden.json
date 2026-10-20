@@ -40,6 +40,8 @@
         {
           "name": "email",
           "required": true,
+          "unique": true,
+          "max_length": 255,
           "source": {
             "file": "models.go",
             "line": 25
@@ -62,6 +64,7 @@
         {
           "name": "home_street",
           "required": true,
+          "max_length": 200,
           "source": {
             "file": "models.go",
             "line": 14
@@ -91,6 +94,16 @@
       ],
       "primary_key": [
         "id"
+      ],
+      "relations": [
+        {
+          "columns": [
+            "company_id"
+          ],
+          "references": {
+            "table": "legacy_companies"
+          }
+        }
       ]
     },
     {
@@ -141,6 +154,16 @@
       ],
       "primary_key": [
         "id"
+      ],
+      "relations": [
+        {
+          "columns": [
+            "buyer_id"
+          ],
+          "references": {
+            "table": "app_users"
+          }
+        }
       ]
     },
     {
