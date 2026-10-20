@@ -73,7 +73,8 @@ types, project-relative positions), `Struct.Flatten(expand)` (embedded structs e
 declared outside the project, like `gorm.Model`, take the position of the embedding field),
 `Struct.StringMethod` (a method that returns a string literal, e.g. `TableName`), `NamedType`,
 `HasMethod`. It knows no ORM; each adapter decides what a model is and what its tags mean. An
-adapter module requires it with a `replace ... => ../staticmodel` until the modules are published.
+adapter module requires a tagged version of it (`adapters/staticmodel/vX.Y.Z`); inside the repository
+`go.work` resolves it to the local copy.
 
 ### gorm (`adapters/gorm`)
 

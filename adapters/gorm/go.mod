@@ -3,7 +3,7 @@ module github.com/mokevnin/schemalens/adapters/gorm
 go 1.27.2
 
 require (
-	github.com/mokevnin/schemalens/adapters/staticmodel v0.0.0
+	github.com/mokevnin/schemalens/adapters/staticmodel v0.1.0
 	gorm.io/gorm v1.31.2
 	modernc.org/sqlite v1.60.1
 )
@@ -29,5 +29,3 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
 )
-
-replace github.com/mokevnin/schemalens/adapters/staticmodel => ../staticmodel

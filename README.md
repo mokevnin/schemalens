@@ -14,7 +14,9 @@ and for each built-in adapter, all with the same version. Download them from the
   github.com/mokevnin/schemalens/cmd/schemalens@latest`.
 - **Adapters:** `schemalens-adapter-ent`, `schemalens-adapter-gorm`, `schemalens-adapter-bun`, each
   its own archive. Put the binary on `PATH` next to `schemalens` and select it with `--adapter`.
-  Adapters are not built by `go install` yet (gorm and bun use a local `replace`); use the release
+  From source, `go install github.com/mokevnin/schemalens/adapters/ent/cmd/schemalens-adapter-ent@<version>`,
+  and `go install github.com/mokevnin/schemalens/adapters/gorm@<version>` (same for bun). The gorm
+  and bun installs need a release newer than v0.1.0, which still carries a local `replace`; use its
   archives.
 
 How releases are made: [docs/releasing.md](docs/releasing.md).

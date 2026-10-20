@@ -45,13 +45,15 @@ Nothing is published. `goreleaser check` validates the config alone.
   release commit. Add new nested modules to the list in `release.yml`.
   `release.yml` pushes them (skipping ones that exist). release-please does not manage them: it
   produces the single repo version only.
-- **Workspace builds.** gorm and bun require `adapters/staticmodel v0.0.0` through
-  `replace ... => ../staticmodel`. Each adapter builds from its own directory with `GOWORK=off`
-  (the replace resolves), and goreleaser builds from the repo root with `go.work` in effect, so it
-  never depends on that. Do not set `GOWORK=off` in `.goreleaser.yaml`.
-- **`go install` of gorm and bun** does not work from the proxy while the `replace` is there (Go
-  rejects it). Releases ship binaries instead. Dropping the `replace` and requiring the tagged
-  staticmodel version is the follow-up if that matters; the tags above make it possible.
+- **Module dependencies.** gorm and bun require a tagged `adapters/staticmodel`, and gormext and
+  bunext a tagged `manifest`; there are no `replace` directives, so every module builds from its
+  own directory with `GOWORK=off` and `go install <module>@<version>` works. Inside the repository
+  `go.work` resolves those requirements to the local copies, and goreleaser builds from the repo
+  root with `go.work` in effect. Do not set `GOWORK=off` in `.goreleaser.yaml`.
+- **Bumping a library.** After a change to `staticmodel` or `manifest` that an adapter needs,
+  release it first, then raise the `require` in the dependent modules to that tag
+  (`GOWORK=off go mod tidy` in each) in the next commit. v0.1.0 of gorm and bun still carry the old
+  `replace`, so `go install` of those two works from the next release on.
 - **Notes.** The GitHub release is created by release-please and then overwritten by goreleaser
   (`release.mode: replace`), so the notes come from commit messages, as the goreleaser config says.
 

@@ -5,9 +5,8 @@ project_name: schemalens
 # archives so the core can be installed alone. Libraries (staticmodel, extended-mode packages) are
 # not released as binaries.
 #
-# gorm and bun require adapters/staticmodel through a `replace ../staticmodel` directive, so they
-# only build from inside the repository. Goreleaser runs from the repo root, where go.work is
-# found, so every build below is a workspace build. Do not set GOWORK=off here.
+# Goreleaser runs from the repo root, where go.work is found, so every build below is a workspace
+# build and uses the local copies of the nested modules. Do not set GOWORK=off here.
 
 builds:
   - id: schemalens

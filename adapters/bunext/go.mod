@@ -4,7 +4,7 @@ go 1.27.2
 
 require (
 	github.com/jinzhu/inflection v1.0.0
-	github.com/mokevnin/schemalens/manifest v0.0.0-00010101000000-000000000000
+	github.com/mokevnin/schemalens/manifest v0.1.0
 	github.com/uptrace/bun v1.3.0
 	github.com/uptrace/bun/dialect/sqlitedialect v1.3.0
 	github.com/uptrace/bun/driver/sqliteshim v1.3.0
@@ -28,5 +28,3 @@ require (
 	modernc.org/memory v1.11.0 // indirect
 	modernc.org/sqlite v1.46.1 // indirect
 )
-
-replace github.com/mokevnin/schemalens/manifest => ../../manifest

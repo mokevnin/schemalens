@@ -4,7 +4,7 @@ go 1.27.2
 
 require (
 	github.com/jinzhu/inflection v1.0.0
-	github.com/mokevnin/schemalens/adapters/staticmodel v0.0.0
+	github.com/mokevnin/schemalens/adapters/staticmodel v0.1.0
 	github.com/uptrace/bun v1.3.0
 	github.com/uptrace/bun/dialect/sqlitedialect v1.3.0
 	modernc.org/sqlite v1.60.1
@@ -30,5 +30,3 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
 )
-
-replace github.com/mokevnin/schemalens/adapters/staticmodel => ../staticmodel

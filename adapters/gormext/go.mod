@@ -3,7 +3,7 @@ module github.com/mokevnin/schemalens/adapters/gormext
 go 1.27.2
 
 require (
-	github.com/mokevnin/schemalens/manifest v0.0.0
+	github.com/mokevnin/schemalens/manifest v0.1.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.2
 )
@@ -14,5 +14,3 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.22 // indirect
 	golang.org/x/text v0.20.0 // indirect
 )
-
-replace github.com/mokevnin/schemalens/manifest => ../../manifest

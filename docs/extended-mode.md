@@ -37,9 +37,9 @@ Three small modules, so nobody pulls an ORM they do not use (the core depends on
 | `github.com/mokevnin/schemalens/adapters/bunext` | `Manifest(dialect schema.Dialect, models ...any)`; depends on bun only. |
 
 Naming: `<orm>ext` is the extended-mode library for `<orm>`; it is deliberately separate from
-`adapters/<orm>`, the basic executable adapter, and imports nothing from it. Until the modules are
-published, a program in this repository refers to them through the workspace (`go.work`) or a
-`replace`.
+`adapters/<orm>`, the basic executable adapter, and imports nothing from it. The modules are tagged
+with the repository (`adapters/gormext/vX.Y.Z`, `adapters/bunext/vX.Y.Z`), so a program outside
+this repository can `go get` them; inside it the workspace (`go.work`) resolves them locally.
 
 ## Use
 
