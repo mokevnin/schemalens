@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "schemalens",
+          "informationUri": "https://github.com/mokevnin/schemalens",
+          "rules": []
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": false,
+          "toolConfigurationNotifications": [
+            {
+              "level": "error",
+              "message": {
+                "text": "exclusion matches nothing: rule table-without-primary-key, object main.gone (table was dropped); remove it or fix its object"
+              },
+              "descriptor": {
+                "id": "unmatched-exclusion"
+              },
+              "properties": {
+                "object": "main.gone",
+                "reason": "table was dropped",
+                "rule": "table-without-primary-key"
+              }
+            }
+          ]
+        }
+      ],
+      "results": []
+    }
+  ]
+}

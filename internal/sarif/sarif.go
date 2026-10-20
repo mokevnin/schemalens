@@ -24,9 +24,32 @@ type log struct {
 }
 
 type run struct {
-	Tool    tool     `json:"tool"`
-	Results []result `json:"results"`
+	Tool        tool         `json:"tool"`
+	Invocations []invocation `json:"invocations,omitempty"`
+	Results     []result     `json:"results"`
 }
+
+// invocation carries run-level problems that are not findings: configured
+// exclusions that matched nothing.
+type invocation struct {
+	ExecutionSuccessful bool           `json:"executionSuccessful"`
+	Notifications       []notification `json:"toolConfigurationNotifications"`
+}
+
+type notification struct {
+	Level      string         `json:"level"`
+	Message    text           `json:"message"`
+	Descriptor descriptor     `json:"descriptor"`
+	Props      map[string]any `json:"properties"`
+}
+
+// Unmatched is a configured exclusion that matched no finding.
+type Unmatched struct {
+	Rule, Object, Reason string
+}
+
+// unmatchedExclusionID is the notification descriptor of an unmatched exclusion.
+const unmatchedExclusionID = "unmatched-exclusion"
 
 type tool struct {
 	Driver driver `json:"driver"`
@@ -80,8 +103,10 @@ type logical struct {
 
 // Render writes findings as a SARIF log. Every finding is an error-level
 // result (schemalens has no warning level). Findings keep their given order;
-// rule descriptors are sorted by id, so output is deterministic.
-func Render(w io.Writer, findings []finding.Finding) error {
+// rule descriptors are sorted by id, so output is deterministic. Unmatched
+// exclusions, which make check fail, are reported in invocations[0] as
+// configuration notifications with executionSuccessful false.
+func Render(w io.Writer, findings []finding.Finding, unmatched []Unmatched) error {
 	var ids []string
 	for _, f := range findings {
 		ids = append(ids, f.Rule)
@@ -105,14 +130,24 @@ func Render(w io.Writer, findings []finding.Finding) error {
 		})
 	}
 
-	doc := log{
-		Schema:  schemaURI,
-		Version: version,
-		Runs: []run{{
-			Tool:    tool{Driver: driver{Name: "schemalens", InformationURI: infoURI, Rules: rules}},
-			Results: results,
-		}},
+	r := run{
+		Tool:    tool{Driver: driver{Name: "schemalens", InformationURI: infoURI, Rules: rules}},
+		Results: results,
 	}
+	if len(unmatched) > 0 {
+		notes := make([]notification, 0, len(unmatched))
+		for _, u := range unmatched {
+			notes = append(notes, notification{
+				Level: "error",
+				Message: text{Text: "exclusion matches nothing: rule " + u.Rule + ", object " + u.Object +
+					" (" + u.Reason + "); remove it or fix its object"},
+				Descriptor: descriptor{ID: unmatchedExclusionID},
+				Props:      map[string]any{"rule": u.Rule, "object": u.Object, "reason": u.Reason},
+			})
+		}
+		r.Invocations = []invocation{{ExecutionSuccessful: false, Notifications: notes}}
+	}
+	doc := log{Schema: schemaURI, Version: version, Runs: []run{r}}
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 	return enc.Encode(doc)

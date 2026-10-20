@@ -28,6 +28,15 @@ How releases are made: [docs/releasing.md](docs/releasing.md).
 - **Instructions snippet:** [`docs/agent-instructions.md`](docs/agent-instructions.md) is a block to
   paste into `AGENTS.md` or `CLAUDE.md`.
 
+## Exit codes and stale exclusions
+
+`check` exits 0 when it finds nothing, 1 when it reports findings or when a configured exclusion
+matches nothing, and 2 on usage or configuration errors. A stale exclusion fails the run on purpose:
+it means a violation was fixed or an object renamed, and left in place it would silently hide the
+next violation on that object. It is listed in the JSON `unmatched_exclusions` field, on stderr, and
+in `--format sarif` output as `runs[0].invocations[0]` (`executionSuccessful: false`, one
+`toolConfigurationNotifications` entry per exclusion).
+
 ## Documentation
 
 - [Rules](docs/rules/README.md): one page per rule, generated from `schemalens explain`. After

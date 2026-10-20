@@ -126,7 +126,11 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	findings, unmatched := cfg.Apply(findings)
 
 	if *format == "sarif" {
-		err = sarif.Render(stdout, findings)
+		um := make([]sarif.Unmatched, len(unmatched))
+		for i, e := range unmatched {
+			um[i] = sarif.Unmatched{Rule: e.Rule, Object: e.Object, Reason: e.Reason}
+		}
+		err = sarif.Render(stdout, findings, um)
 	} else {
 		enc := json.NewEncoder(stdout)
 		enc.SetIndent("", "  ")

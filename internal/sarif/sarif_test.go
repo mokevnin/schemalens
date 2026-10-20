@@ -32,7 +32,7 @@ func TestRenderMapsSourcePositionAndValidates(t *testing.T) {
 		},
 	}
 	var buf bytes.Buffer
-	if err := sarif.Render(&buf, findings); err != nil {
+	if err := sarif.Render(&buf, findings, nil); err != nil {
 		t.Fatal(err)
 	}
 	var doc any
@@ -54,8 +54,32 @@ func TestRenderMapsSourcePositionAndValidates(t *testing.T) {
 		}
 	}
 	var again bytes.Buffer
-	if err := sarif.Render(&again, findings); err != nil || again.String() != out {
+	if err := sarif.Render(&again, findings, nil); err != nil || again.String() != out {
 		t.Error("two renders differ")
+	}
+}
+
+func TestRenderReportsUnmatchedExclusionsAndValidates(t *testing.T) {
+	unmatched := []sarif.Unmatched{{Rule: "table-without-primary-key", Object: "main.gone", Reason: "table was dropped"}}
+	var buf bytes.Buffer
+	if err := sarif.Render(&buf, nil, unmatched); err != nil {
+		t.Fatal(err)
+	}
+	var doc any
+	if err := json.Unmarshal(buf.Bytes(), &doc); err != nil {
+		t.Fatal(err)
+	}
+	if err := compile(t).Validate(doc); err != nil {
+		t.Fatalf("does not validate: %v\n%s", err, buf.String())
+	}
+	for _, want := range []string{`"executionSuccessful": false`, `"toolConfigurationNotifications"`, "main.gone", "table was dropped"} {
+		if !strings.Contains(buf.String(), want) {
+			t.Errorf("output lacks %s\n%s", want, buf.String())
+		}
+	}
+	var clean bytes.Buffer
+	if err := sarif.Render(&clean, nil, nil); err != nil || strings.Contains(clean.String(), "invocations") {
+		t.Errorf("no unmatched exclusions must add no invocations: %v\n%s", err, clean.String())
 	}
 }
 
