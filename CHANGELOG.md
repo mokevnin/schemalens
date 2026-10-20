@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/mokevnin/schemalens/compare/v0.1.2...v0.1.3) (2026-10-20)
+
+
+### Bug Fixes
+
+* install the gorm and bun adapters under their own names ([e825b6c](https://github.com/mokevnin/schemalens/commit/e825b6cb4cc91570e4ffbf00b663bb0c55b629f0))
+
 ## [0.1.2](https://github.com/mokevnin/schemalens/compare/v0.1.1...v0.1.2) (2026-10-20)
 
 
