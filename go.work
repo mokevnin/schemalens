@@ -4,6 +4,7 @@ use (
 	.
 	./adapters/bun
 	./adapters/ent
+	./adapters/bunext
 	./adapters/gorm
 	./adapters/gormext
 	./adapters/staticmodel

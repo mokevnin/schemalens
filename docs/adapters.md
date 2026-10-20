@@ -137,3 +137,9 @@ exclude: [Scratch]         # look like models, are not
 
 The adapter's tests check its manifest against bun's own runtime schema for the sample project
 (table names, columns, not-null, primary keys).
+
+### Extended mode
+
+For run-time naming and real types, `adapters/gormext` and `adapters/bunext` build the manifest from your
+compiled models inside a program you write, on top of the ORM-agnostic `manifest` module. See
+[extended-mode.md](extended-mode.md).
