@@ -94,6 +94,10 @@ func Parse(data []byte) (*Config, error) {
 	return &c, nil
 }
 
+// Validate checks the configuration the way Parse does: known rules, complete
+// exclusions with a reason, well-formed exclusion objects.
+func (c *Config) Validate() error { return c.validate() }
+
 func (c *Config) validate() error {
 	for id := range c.Rules {
 		if _, ok := rules.Lookup(id); !ok {

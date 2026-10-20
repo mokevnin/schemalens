@@ -58,6 +58,13 @@ cat <<'JSON'
 JSON
 ```
 
+## Consuming a manifest from Go
+
+A Go program that already holds a manifest does not need the CLI: pass it to
+`schemalens.Check(ctx, schemalens.Options{DSN: dsn, Manifest: data})`, or validate it first with
+`schemalens.ParseManifest(data)` (same validation as `--manifest`). `schemalens.ManifestSchema()`
+returns the JSON Schema. See "Use as a library" in the README.
+
 ## Built-in adapters and shared code
 
 Adapters live in `adapters/<name>/`, each a Go module of its own (module path

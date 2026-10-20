@@ -9,9 +9,7 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/mokevnin/schemalens/internal/config"
-	"github.com/mokevnin/schemalens/internal/inspect"
-	"github.com/mokevnin/schemalens/internal/rules"
+	"github.com/mokevnin/schemalens"
 )
 
 // runBaseline records the current findings as exclusions with the reason
@@ -21,7 +19,7 @@ func runBaseline(args []string, stdout, stderr io.Writer) int {
 	flags := flag.NewFlagSet("baseline", flag.ContinueOnError)
 	flags.SetOutput(stderr)
 	dsn := flags.String("dsn", "", "database to baseline, for example sqlite://path/to/db.sqlite")
-	configPath := flags.String("config", config.DefaultFile, "configuration file to update (created if missing)")
+	configPath := flags.String("config", schemalens.DefaultConfigFile, "configuration file to update (created if missing)")
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return ExitOK
@@ -37,25 +35,11 @@ func runBaseline(args []string, stdout, stderr io.Writer) int {
 		_, _ = fmt.Fprintf(stderr, "schemalens baseline: %v\n", err)
 		return ExitUsage
 	}
-	cfg, err := config.Parse(data)
-	if err != nil {
+	if _, err := schemalens.ParseConfig(data); err != nil {
 		_, _ = fmt.Fprintf(stderr, "schemalens baseline: config %s: %v\n", *configPath, err)
 		return ExitUsage
 	}
-	res, err := inspect.Inspect(context.Background(), *dsn)
-	if err != nil {
-		_, _ = fmt.Fprintf(stderr, "schemalens baseline: %v\n", err)
-		return ExitUsage
-	}
-	defer res.Close()
-	findings, err := rules.RunEnabled(context.Background(), rules.Input{
-		Dialect: res.Dialect, Realm: res.Realm, DB: res.DB, RuleOptions: cfg.Options,
-	}, cfg.Enabled)
-	if err != nil {
-		_, _ = fmt.Fprintf(stderr, "schemalens baseline: %v\n", err)
-		return ExitUsage
-	}
-	out, added, err := config.AddBaseline(data, findings)
+	out, added, err := schemalens.Baseline(context.Background(), schemalens.BaselineOptions{DSN: *dsn, Config: data})
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "schemalens baseline: %v\n", err)
 		return ExitUsage

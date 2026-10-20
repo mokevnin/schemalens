@@ -23,6 +23,33 @@ and for each built-in adapter, all with the same version. Download them from the
 
 How releases are made: [docs/releasing.md](docs/releasing.md).
 
+## Use as a library
+
+The core is a Go package too: `go get github.com/mokevnin/schemalens`. The CLI is a thin layer over
+it, so a program gets the same findings, JSON and SARIF as `schemalens check`, and the root module
+depends on no ORM.
+
+```go
+rep, err := schemalens.Check(ctx, schemalens.Options{
+	DSN:      "postgres://user:pass@localhost/app",
+	Manifest: manifestJSON, // optional: what an adapter prints
+	Config:   cfg,          // optional: schemalens.LoadConfig("schemalens.yml")
+})
+if err != nil {
+	return err // unusable DSN, manifest or configuration
+}
+for _, f := range rep.Findings {
+	fmt.Println(f.Rule, f.Message, f.Fix)
+}
+if !rep.Passed() { // findings or stale exclusions, like exit code 1
+	return rep.WriteJSON(os.Stdout)
+}
+```
+
+Also available: `ParseManifest`, `ParseConfig`, `Rules`, `Explain`, `Baseline` and
+`Report.WriteSARIF`. See the [package documentation](https://pkg.go.dev/github.com/mokevnin/schemalens).
+Rule implementations and database inspection stay internal.
+
 ## For agents
 
 - **Skill:** [`skills/schemalens/SKILL.md`](skills/schemalens/SKILL.md) is a user-installable agent

@@ -4,18 +4,12 @@ package cli
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
 
-	"github.com/mokevnin/schemalens/internal/config"
-	"github.com/mokevnin/schemalens/internal/finding"
-	"github.com/mokevnin/schemalens/internal/inspect"
-	"github.com/mokevnin/schemalens/internal/manifest"
-	"github.com/mokevnin/schemalens/internal/rules"
-	"github.com/mokevnin/schemalens/internal/sarif"
+	"github.com/mokevnin/schemalens"
 )
 
 // Exit codes. There is no warning level: any finding is a failure.
@@ -49,14 +43,6 @@ func Run(args []string, stdout, stderr io.Writer) int {
 	}
 }
 
-// report is the JSON document printed by `check`.
-type report struct {
-	Findings []finding.Finding `json:"findings"`
-	// UnmatchedExclusions are configured exclusions that matched no finding;
-	// they fail the run so stale exclusions do not accumulate.
-	UnmatchedExclusions []config.Exclusion `json:"unmatched_exclusions,omitempty"`
-}
-
 func runCheck(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("check", flag.ContinueOnError)
 	fs.SetOutput(stderr)
@@ -85,7 +71,7 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		_, _ = fmt.Fprintln(stderr, "schemalens check: --dsn is required")
 		return ExitUsage
 	}
-	cfg, err := config.Load(*configPath)
+	cfg, err := schemalens.LoadConfig(*configPath)
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: %v\n", err)
 		return ExitUsage
@@ -96,7 +82,7 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		return ExitUsage
 	}
 
-	var model *manifest.Manifest
+	var model *schemalens.Manifest
 	var code int
 	if *adapterName != "" {
 		model, code = runAdapter(*adapterName, adapterArgs, stderr)
@@ -107,46 +93,31 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		return code
 	}
 
-	res, err := inspect.Inspect(context.Background(), *dsn)
+	rep, err := schemalens.Check(context.Background(), schemalens.Options{DSN: *dsn, Model: model, Config: cfg})
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: %v\n", err)
 		return ExitUsage
 	}
-	for _, r := range rules.Skipped(res.Dialect) {
-		_, _ = fmt.Fprintf(stderr, "schemalens check: rule %s skipped: does not apply to %s\n", r.ID, res.Dialect)
+	for _, id := range rep.SkippedRules {
+		_, _ = fmt.Fprintf(stderr, "schemalens check: rule %s skipped: does not apply to %s\n", id, rep.Dialect)
 	}
-	defer res.Close()
-	for _, w := range rules.Unmapped(model, res.Realm) {
+	for _, w := range rep.Warnings {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: warning: %s\n", w)
 	}
-	findings, err := rules.RunEnabled(context.Background(), rules.Input{
-		Dialect: res.Dialect, Realm: res.Realm, Manifest: model, DB: res.DB, RuleOptions: cfg.Options,
-	}, cfg.Enabled)
-	if err != nil {
-		_, _ = fmt.Fprintf(stderr, "schemalens check: %v\n", err)
-		return ExitUsage
-	}
-	findings, unmatched := cfg.Apply(findings)
 
 	if *format == "sarif" {
-		um := make([]sarif.Unmatched, len(unmatched))
-		for i, e := range unmatched {
-			um[i] = sarif.Unmatched{Rule: e.Rule, Object: e.Object, Reason: e.Reason}
-		}
-		err = sarif.Render(stdout, findings, um)
+		err = rep.WriteSARIF(stdout)
 	} else {
-		enc := json.NewEncoder(stdout)
-		enc.SetIndent("", "  ")
-		err = enc.Encode(report{Findings: findings, UnmatchedExclusions: unmatched})
+		err = rep.WriteJSON(stdout)
 	}
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: write output: %v\n", err)
 		return ExitUsage
 	}
-	for _, e := range unmatched {
+	for _, e := range rep.UnmatchedExclusions {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: exclusion matches nothing: rule %s, object %s (%s)\n", e.Rule, e.Object, e.Reason)
 	}
-	if len(findings) > 0 || len(unmatched) > 0 {
+	if !rep.Passed() {
 		return ExitFindings
 	}
 	return ExitOK

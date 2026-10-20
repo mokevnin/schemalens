@@ -6,10 +6,9 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"slices"
 	"strings"
 
-	"github.com/mokevnin/schemalens/internal/rules"
+	"github.com/mokevnin/schemalens"
 )
 
 type ruleListing struct {
@@ -30,12 +29,11 @@ func runRules(args []string, stdout, stderr io.Writer) int {
 	}
 
 	listing := []ruleListing{}
-	for _, r := range rules.All() {
+	for _, r := range schemalens.Rules() {
 		ds := make([]string, len(r.Dialects))
 		for i, d := range r.Dialects {
 			ds[i] = string(d)
 		}
-		slices.Sort(ds)
 		listing = append(listing, ruleListing{ID: r.ID, Dialects: ds})
 	}
 
@@ -71,13 +69,13 @@ func runExplain(args []string, stdout, stderr io.Writer) int {
 		return ExitUsage
 	}
 	id := fs.Arg(0)
-	r, ok := rules.Lookup(id)
+	r, ok := schemalens.Explain(id)
 	if !ok {
 		_, _ = fmt.Fprintf(stderr, "schemalens explain: unknown rule %q (run `schemalens rules` to list them)\n", id)
 		return ExitUsage
 	}
 	_, _ = fmt.Fprintf(stdout, "%s\n\nWhy:\n  %s\n\nFix:\n  %s\n\nException:\n  %s\n",
-		r.ID, r.Explain.Why, r.Explain.Fix, r.Explain.Exception)
+		r.ID, r.Why, r.Fix, r.Exception)
 	return ExitOK
 }
 

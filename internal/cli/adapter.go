@@ -9,7 +9,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/mokevnin/schemalens/internal/manifest"
+	"github.com/mokevnin/schemalens"
 )
 
 // adapterPrefix is the executable name prefix of an adapter: `--adapter ent`
@@ -25,7 +25,7 @@ func (s *stringList) Set(v string) error { *s = append(*s, v); return nil }
 // runAdapter finds schemalens-adapter-<name> on PATH, runs it in the current
 // directory with args and returns the manifest it prints, validated exactly
 // like a manifest file.
-func runAdapter(name string, args []string, stderr io.Writer) (*manifest.Manifest, int) {
+func runAdapter(name string, args []string, stderr io.Writer) (*schemalens.Manifest, int) {
 	exe := adapterPrefix + name
 	path, err := exec.LookPath(exe)
 	if err != nil {
@@ -48,7 +48,7 @@ func runAdapter(name string, args []string, stderr io.Writer) (*manifest.Manifes
 		}
 		return nil, ExitUsage
 	}
-	m, err := manifest.Parse(out.Bytes())
+	m, err := schemalens.ParseManifest(out.Bytes())
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: manifest from adapter %s: %v\n", exe, err)
 		return nil, ExitUsage
