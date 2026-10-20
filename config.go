@@ -8,7 +8,7 @@ import (
 
 // DefaultConfigFile is the file the CLI reads from the working directory when
 // no configuration is named. LoadConfig reads it for an empty path.
-const DefaultConfigFile = config.DefaultFile
+const DefaultConfigFile = "schemalens.yml"
 
 // RuleConfig is the configuration of one rule.
 type RuleConfig struct {
