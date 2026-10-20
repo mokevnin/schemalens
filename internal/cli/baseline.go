@@ -47,7 +47,7 @@ func runBaseline(args []string, stdout, stderr io.Writer) int {
 		_, _ = fmt.Fprintf(stderr, "schemalens baseline: %v\n", err)
 		return ExitUsage
 	}
-	findings := rules.RunEnabled(rules.Input{Dialect: res.Dialect, Realm: res.Realm}, cfg.Enabled)
+	findings := rules.RunEnabled(rules.Input{Dialect: res.Dialect, Realm: res.Realm, RuleOptions: cfg.Options}, cfg.Enabled)
 	out, added, err := config.AddBaseline(data, findings)
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "schemalens baseline: %v\n", err)
