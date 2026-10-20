@@ -8,12 +8,31 @@
 package manifest
 
 import (
+	"bytes"
+	_ "embed"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
+
+	"github.com/santhosh-tekuri/jsonschema/v6"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+
+	"github.com/mokevnin/schemalens/internal/finding"
 )
 
 // Version is the manifest version this build understands.
 const Version = 1
+
+var printer = message.NewPrinter(language.English)
+
+//go:embed manifest.schema.json
+var schemaJSON []byte
+
+// Schema returns the JSON Schema of the manifest, as published by
+// `schemalens manifest-schema`.
+func Schema() []byte { return bytes.Clone(schemaJSON) }
 
 // Manifest describes a model.
 type Manifest struct {
@@ -21,15 +40,44 @@ type Manifest struct {
 	Tables  []Table `json:"tables"`
 }
 
-// Parse decodes and validates a manifest document.
+// Table is a model entity mapped to a database table.
+type Table struct {
+	Schema       string            `json:"schema,omitempty"` // empty: the database's only schema
+	Name         string            `json:"name"`
+	Source       *finding.Position `json:"source,omitempty"`
+	Columns      []Column          `json:"columns"`
+	PrimaryKey   []string          `json:"primary_key,omitempty"`
+	JoinTableFor []TableRef        `json:"join_table_for,omitempty"`
+}
+
+// TableRef names a table, for relations between tables.
+type TableRef struct {
+	Schema string `json:"schema,omitempty"`
+	Table  string `json:"table"`
+}
+
+// Column is a model field mapped to a database column.
+type Column struct {
+	Name     string            `json:"name"`
+	Required bool              `json:"required,omitempty"`
+	Source   *finding.Position `json:"source,omitempty"`
+}
+
+// Parse decodes and validates a manifest document: the version is checked
+// first so an incompatible document gets a clear error naming both versions,
+// then the document is validated against the JSON Schema.
 func Parse(data []byte) (*Manifest, error) {
-	var head struct {
-		Version json.Number `json:"version"`
+	var doc any
+	if err := json.Unmarshal(data, &doc); err != nil {
+		return nil, fmt.Errorf("manifest is not valid JSON: %w", err)
 	}
-	if err := json.Unmarshal(data, &head); err == nil && head.Version != "" {
-		if v, err := head.Version.Int64(); err == nil && v != Version {
-			return nil, fmt.Errorf("manifest version %d is not supported (supported: %d)", v, Version)
+	if obj, ok := doc.(map[string]any); ok {
+		if v, ok := obj["version"].(float64); ok && v == float64(int64(v)) && int64(v) != Version {
+			return nil, fmt.Errorf("manifest version %d is not supported; this schemalens supports version %d", int64(v), Version)
 		}
+	}
+	if err := validate(data); err != nil {
+		return nil, err
 	}
 	var m Manifest
 	if err := json.Unmarshal(data, &m); err != nil {
@@ -38,5 +86,49 @@ func Parse(data []byte) (*Manifest, error) {
 	return &m, nil
 }
 
-// Table is a model entity mapped to a database table.
-type Table struct{}
+func validate(data []byte) error {
+	c := jsonschema.NewCompiler()
+	var raw any
+	if err := json.Unmarshal(schemaJSON, &raw); err != nil {
+		return fmt.Errorf("embedded manifest schema: %w", err)
+	}
+	const url = "schemalens://manifest.schema.json"
+	if err := c.AddResource(url, raw); err != nil {
+		return fmt.Errorf("embedded manifest schema: %w", err)
+	}
+	sch, err := c.Compile(url)
+	if err != nil {
+		return fmt.Errorf("embedded manifest schema: %w", err)
+	}
+	inst, err := jsonschema.UnmarshalJSON(bytes.NewReader(data))
+	if err != nil {
+		return fmt.Errorf("manifest is not valid JSON: %w", err)
+	}
+	err = sch.Validate(inst)
+	if err == nil {
+		return nil
+	}
+	var ve *jsonschema.ValidationError
+	if !errors.As(err, &ve) {
+		return err
+	}
+	var problems []string
+	seen := map[string]bool{}
+	var walk func(*jsonschema.ValidationError)
+	walk = func(e *jsonschema.ValidationError) {
+		if len(e.Causes) > 0 {
+			for _, c := range e.Causes {
+				walk(c)
+			}
+			return
+		}
+		loc := "/" + strings.Join(e.InstanceLocation, "/")
+		p := fmt.Sprintf("at %s: %s", loc, e.ErrorKind.LocalizedString(printer))
+		if !seen[p] {
+			seen[p] = true
+			problems = append(problems, p)
+		}
+	}
+	walk(ve)
+	return fmt.Errorf("manifest does not match the JSON Schema:\n  %s", strings.Join(problems, "\n  "))
+}

@@ -1,0 +1,1 @@
+{"version": 1, "tables": [{"name": "users", "columns": [{"name": "email", "required": "yes"}]}]}

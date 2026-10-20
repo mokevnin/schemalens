@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mokevnin/schemalens/manifest/v1",
+  "title": "schemalens model manifest",
+  "description": "Describes a model with physical names exactly as they exist in the database. The core applies no ORM naming rules.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "tables"],
+  "properties": {
+    "version": {
+      "description": "Manifest format version. This schema describes version 1.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "tables": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/table" }
+    }
+  },
+  "$defs": {
+    "position": {
+      "description": "A place in the model's source code.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "line"],
+      "properties": {
+        "file": { "type": "string", "minLength": 1 },
+        "line": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "tableRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["table"],
+      "properties": {
+        "schema": {
+          "description": "Database schema or namespace. Omitted means the database's only schema.",
+          "type": "string"
+        },
+        "table": { "type": "string", "minLength": 1 }
+      }
+    },
+    "table": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "columns"],
+      "properties": {
+        "schema": {
+          "description": "Database schema or namespace. Omitted means the database's only schema.",
+          "type": "string"
+        },
+        "name": { "description": "Physical table name.", "type": "string", "minLength": 1 },
+        "source": { "$ref": "#/$defs/position" },
+        "columns": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/column" }
+        },
+        "primary_key": {
+          "description": "Physical names of the primary key columns, in key order. More than one makes a composite key.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "join_table_for": {
+          "description": "Set on the table that backs a many-to-many relation: the two tables it joins.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/tableRef" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "column": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "description": "Physical column name.", "type": "string", "minLength": 1 },
+        "required": {
+          "description": "True when the model field cannot be null.",
+          "type": "boolean"
+        },
+        "source": { "$ref": "#/$defs/position" }
+      }
+    }
+  }
+}
