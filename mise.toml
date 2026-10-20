@@ -1,0 +1,23 @@
+[tools]
+go = "1.27.2"
+golangci-lint = "2.14.0"
+
+[tasks.build]
+description = "Build the schemalens binary into ./bin"
+run = "go build -o bin/schemalens ./cmd/schemalens"
+
+[tasks.test]
+description = "Run all tests, including golden tests"
+run = "go test ./..."
+
+[tasks.golden]
+description = "Rewrite golden files; review the diff before committing"
+run = "go test ./internal/cli -update"
+
+[tasks.lint]
+description = "Run golangci-lint"
+run = "golangci-lint run ./..."
+
+[tasks.check]
+description = "Everything CI runs"
+depends = ["lint", "test"]

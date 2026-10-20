@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "rule": "table-without-primary-key",
+      "object": {
+        "schema": "main",
+        "table": "apple"
+      },
+      "message": "table \"apple\" has no primary key",
+      "fix": "Declare a primary key for the model that maps to table \"apple\" (for example an id field marked as the primary key), then regenerate the schema."
+    },
+    {
+      "rule": "table-without-primary-key",
+      "object": {
+        "schema": "main",
+        "table": "zebra"
+      },
+      "message": "table \"zebra\" has no primary key",
+      "fix": "Declare a primary key for the model that maps to table \"zebra\" (for example an id field marked as the primary key), then regenerate the schema."
+    }
+  ]
+}

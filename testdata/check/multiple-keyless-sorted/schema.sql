@@ -1,0 +1,3 @@
+CREATE TABLE zebra (name TEXT);
+CREATE TABLE users (id INTEGER PRIMARY KEY);
+CREATE TABLE apple (name TEXT);
