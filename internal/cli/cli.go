@@ -40,6 +40,8 @@ func Run(args []string, stdout, stderr io.Writer) int {
 		return runRules(args[1:], stdout, stderr)
 	case "explain":
 		return runExplain(args[1:], stdout, stderr)
+	case "manifest-schema":
+		return runManifestSchema(stdout, stderr)
 	default:
 		_, _ = fmt.Fprintf(stderr, "schemalens: unknown command %q\ncommands: check, rules, explain, baseline\n", args[0])
 		return ExitUsage
