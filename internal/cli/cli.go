@@ -13,6 +13,7 @@ import (
 	"github.com/mokevnin/schemalens/internal/finding"
 	"github.com/mokevnin/schemalens/internal/inspect"
 	"github.com/mokevnin/schemalens/internal/rules"
+	"github.com/mokevnin/schemalens/internal/sarif"
 )
 
 // Exit codes. There is no warning level: any finding is a failure.
@@ -51,6 +52,7 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("check", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	dsn := fs.String("dsn", "", "database to check, for example sqlite://path/to/db.sqlite")
+	format := fs.String("format", "json", "output format: json or sarif")
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return ExitOK
@@ -62,6 +64,11 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		return ExitUsage
 	}
 
+	if *format != "json" && *format != "sarif" {
+		_, _ = fmt.Fprintf(stderr, "schemalens check: unknown --format %q (want json or sarif)\n", *format)
+		return ExitUsage
+	}
+
 	res, err := inspect.Inspect(context.Background(), *dsn)
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: %v\n", err)
@@ -69,9 +76,14 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	}
 	findings := rules.Run(rules.Input{Dialect: res.Dialect, Realm: res.Realm})
 
-	enc := json.NewEncoder(stdout)
-	enc.SetIndent("", "  ")
-	if err := enc.Encode(report{Findings: findings}); err != nil {
+	if *format == "sarif" {
+		err = sarif.Render(stdout, findings)
+	} else {
+		enc := json.NewEncoder(stdout)
+		enc.SetIndent("", "  ")
+		err = enc.Encode(report{Findings: findings})
+	}
+	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: write output: %v\n", err)
 		return ExitUsage
 	}

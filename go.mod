@@ -4,6 +4,7 @@ go 1.27.2
 
 require (
 	ariga.io/atlas v1.3.0
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3
 	modernc.org/sqlite v1.60.1
 )
 
