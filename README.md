@@ -37,6 +37,31 @@ and for each built-in adapter, all with the same version. Download them from the
 
 How releases are made: [docs/releasing.md](docs/releasing.md).
 
+## Usage
+
+`schemalens` is a command-line tool. Point `check` at a database migrated to the current model,
+add the model with `--adapter` (or a manifest file with `--manifest`), and read the findings:
+
+```
+$ schemalens check --dsn sqlite://app.db --manifest manifest.json --format text
+required-field-nullable-column  main.users.email
+  model field for column "email" of table "users" is required, but the column is nullable
+  fix: Make column "email" of table "users" NOT NULL: keep the field required in the model, then regenerate the migration and apply it so the database enforces what the model promises.
+  at: ent/schema/user.go:12
+
+table-without-primary-key  main.audit_log
+  table "audit_log" has no primary key
+  fix: Declare a primary key for the model that maps to table "audit_log" (for example an id field marked as the primary key), then regenerate the schema.
+
+2 findings, 0 stale exclusions
+```
+
+Each finding shows its rule, the database object, what is wrong, how to fix it and, when an adapter
+supplied it, the model source position (`at:`). A stale exclusion is listed before the summary.
+
+Output is JSON by default, for agents and scripts. `--format text` (above) is for people reading a
+terminal, and `--format sarif` prints SARIF 2.1.0 for code scanning.
+
 ## Use as a library
 
 The core is a Go package too: `go get github.com/mokevnin/schemalens`. The CLI is a thin layer over
@@ -78,28 +103,6 @@ Rule implementations and database inspection stay internal.
   `.claude/skills/`.
 - **Instructions snippet:** [`docs/agent-instructions.md`](docs/agent-instructions.md) is a block to
   paste into `AGENTS.md` or `CLAUDE.md`.
-
-## Output formats
-
-`check` prints JSON by default, for agents and scripts. `--format text` prints the same findings
-for people reading a terminal, and `--format sarif` prints SARIF 2.1.0 for code scanning.
-
-```
-$ schemalens check --dsn sqlite://app.db --manifest manifest.json --format text
-required-field-nullable-column  main.users.email
-  model field for column "email" of table "users" is required, but the column is nullable
-  fix: Make column "email" of table "users" NOT NULL: keep the field required in the model, then regenerate the migration and apply it so the database enforces what the model promises.
-  at: ent/schema/user.go:12
-
-table-without-primary-key  main.audit_log
-  table "audit_log" has no primary key
-  fix: Declare a primary key for the model that maps to table "audit_log" (for example an id field marked as the primary key), then regenerate the schema.
-
-2 findings, 0 stale exclusions
-```
-
-Each finding shows its rule, the database object, what is wrong, how to fix it and, when an adapter
-supplied it, the model source position (`at:`). A stale exclusion is listed before the summary.
 
 ## Exit codes and stale exclusions
 
