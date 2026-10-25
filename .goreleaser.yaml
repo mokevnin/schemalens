@@ -77,6 +77,18 @@ archives:
       - {goos: windows, formats: [zip]}
     files: [LICENSE]
 
+# Linux packages for the core only; adapters ship as archives and through install.sh.
+nfpms:
+  - id: schemalens
+    ids: [schemalens]
+    package_name: schemalens
+    file_name_template: "schemalens_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [deb, rpm]
+    homepage: https://github.com/mokevnin/schemalens
+    description: Database consistency checker that compares a Go model with a live schema.
+    license: Apache-2.0
+    maintainer: Kirill Mokevnin <kirill.m@hexlet.io>
+
 checksum:
   name_template: checksums.txt
 
