@@ -9,6 +9,21 @@ Every release publishes one archive per platform (linux, darwin, windows; amd64,
 and for each built-in adapter, all with the same version. Download them from the
 [releases page](https://github.com/mokevnin/schemalens/releases).
 
+- **Install script (Linux, macOS):** downloads the release archive for your platform, verifies it
+  against `checksums.txt` and installs into `/usr/local/bin` (or `~/.local/bin` if that is not
+  writable):
+
+  ```
+  curl -fsSL https://raw.githubusercontent.com/mokevnin/schemalens/main/install.sh | sh
+  ```
+
+  Pass options after `sh -s --`: `-b <dir>` picks the install directory, `-a <adapter>` also installs
+  `schemalens-adapter-<adapter>` (`ent`, `gorm` or `bun`; repeatable) and a trailing `v0.1.3` pins
+  the version, for example `... | sh -s -- -b ~/.local/bin -a ent v0.1.3`.
+- **Linux packages:** each release attaches `schemalens_<version>_linux_<arch>.deb` and `.rpm`
+  (amd64, arm64) with the core only, for example `sudo apt install ./schemalens_<version>_linux_amd64.deb`
+  or `sudo rpm -i schemalens_<version>_linux_amd64.rpm`. Adapters are installed with the script or
+  from archives.
 - **Core only:** `schemalens_<version>_<os>_<arch>`. It needs no adapter: use it with a manifest
   file (`--manifest`) or with any adapter you bring yourself. From source: `go install
   github.com/mokevnin/schemalens/cmd/schemalens@latest`.
