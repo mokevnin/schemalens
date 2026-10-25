@@ -15,7 +15,7 @@ schemalens check --dsn <dsn> --adapter <name> [--adapter-arg <arg>]...
 
 - `--dsn` is `postgres://...`, `mysql://...` or `sqlite://path`. Point it at a database migrated to the current model, never production.
 - `--adapter <name>` runs `schemalens-adapter-<name>` from `PATH` and compares model with database. Without `--adapter` or `--manifest`, only the database-only rules run. Adapters are described in `docs/adapters.md`.
-- Output is JSON on stdout. `--format sarif` is for code scanning.
+- Output is JSON on stdout. `--format text` is for people reading a terminal, `--format sarif` is for code scanning.
 - Exit 0: no findings. Exit 1: findings. Exit 2: usage, configuration or connection error, so read stderr and fix the invocation.
 - Configuration is `schemalens.yml` in the working directory, or `--config`.
 

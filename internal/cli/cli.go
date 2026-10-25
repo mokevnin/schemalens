@@ -47,7 +47,7 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("check", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	dsn := fs.String("dsn", "", "database to check, for example sqlite://path/to/db.sqlite")
-	format := fs.String("format", "json", "output format: json or sarif")
+	format := fs.String("format", "json", "output format: json, text or sarif")
 	configPath := fs.String("config", "", "configuration file (default: schemalens.yml in the working directory, if present)")
 	manifestPath := fs.String("manifest", "", "model manifest (JSON) to compare with the database")
 	adapterName := fs.String("adapter", "", "run schemalens-adapter-<name> from PATH and use the manifest it prints")
@@ -77,8 +77,8 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		return ExitUsage
 	}
 
-	if *format != "json" && *format != "sarif" {
-		_, _ = fmt.Fprintf(stderr, "schemalens check: unknown --format %q (want json or sarif)\n", *format)
+	if *format != "json" && *format != "text" && *format != "sarif" {
+		_, _ = fmt.Fprintf(stderr, "schemalens check: unknown --format %q (want json, text or sarif)\n", *format)
 		return ExitUsage
 	}
 
@@ -105,9 +105,12 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		_, _ = fmt.Fprintf(stderr, "schemalens check: warning: %s\n", w)
 	}
 
-	if *format == "sarif" {
+	switch *format {
+	case "sarif":
 		err = rep.WriteSARIF(stdout)
-	} else {
+	case "text":
+		err = rep.WriteText(stdout)
+	default:
 		err = rep.WriteJSON(stdout)
 	}
 	if err != nil {
