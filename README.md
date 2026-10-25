@@ -52,9 +52,15 @@ Rule implementations and database inspection stay internal.
 ## For agents
 
 - **Skill:** [`skills/schemalens/SKILL.md`](skills/schemalens/SKILL.md) is a user-installable agent
-  skill (copy or symlink `skills/schemalens` into your agent's skills directory, for example
-  `.claude/skills/`). It covers running `check`, reading findings, fixing the model, exclusions and
-  baseline.
+  skill. Install it with [skills.sh](https://skills.sh):
+
+  ```
+  npx skills add mokevnin/schemalens
+  ```
+
+  It covers running `check`, reading findings, fixing the model, exclusions and baseline. You can
+  also copy or symlink `skills/schemalens` into your agent's skills directory by hand, for example
+  `.claude/skills/`.
 - **Instructions snippet:** [`docs/agent-instructions.md`](docs/agent-instructions.md) is a block to
   paste into `AGENTS.md` or `CLAUDE.md`.
 
