@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/mokevnin/schemalens/compare/v0.1.4...v0.1.5) (2026-10-25)
+
+
+### Features
+
+* add a human-readable text output format ([819f590](https://github.com/mokevnin/schemalens/commit/819f590447f0f7da08b50f3acbf2025e0a3cee87))
+
 ## [0.1.4](https://github.com/mokevnin/schemalens/compare/v0.1.3...v0.1.4) (2026-10-25)
 
 
