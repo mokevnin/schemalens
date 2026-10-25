@@ -85,11 +85,11 @@ Rule implementations and database inspection stay internal.
 for people reading a terminal, and `--format sarif` prints SARIF 2.1.0 for code scanning.
 
 ```
-$ schemalens check --dsn sqlite://app.db --adapter gorm --format text
-fk-without-index  main.posts.posts_user_fk
-  foreign key "posts_user_fk" on table "posts" has no supporting index: column "user_id" is not indexed
-  fix: Add an index on table "posts" whose leading column is "user_id" (for example an index tag on the model field), then regenerate the schema.
-  at: models/post.go:14
+$ schemalens check --dsn sqlite://app.db --manifest manifest.json --format text
+required-field-nullable-column  main.users.email
+  model field for column "email" of table "users" is required, but the column is nullable
+  fix: Make column "email" of table "users" NOT NULL: keep the field required in the model, then regenerate the migration and apply it so the database enforces what the model promises.
+  at: ent/schema/user.go:12
 
 table-without-primary-key  main.audit_log
   table "audit_log" has no primary key
