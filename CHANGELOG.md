@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/mokevnin/schemalens/compare/v0.1.3...v0.1.4) (2026-10-25)
+
+
+### Features
+
+* add an install script and deb/rpm packages for Linux ([a0aedb8](https://github.com/mokevnin/schemalens/commit/a0aedb8de8fe231410ae0e081b894b05d4476b3b))
+
 ## [0.1.3](https://github.com/mokevnin/schemalens/compare/v0.1.2...v0.1.3) (2026-10-20)
 
 
