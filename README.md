@@ -79,6 +79,28 @@ Rule implementations and database inspection stay internal.
 - **Instructions snippet:** [`docs/agent-instructions.md`](docs/agent-instructions.md) is a block to
   paste into `AGENTS.md` or `CLAUDE.md`.
 
+## Output formats
+
+`check` prints JSON by default, for agents and scripts. `--format text` prints the same findings
+for people reading a terminal, and `--format sarif` prints SARIF 2.1.0 for code scanning.
+
+```
+$ schemalens check --dsn sqlite://app.db --adapter gorm --format text
+fk-without-index  main.posts.posts_user_fk
+  foreign key "posts_user_fk" on table "posts" has no supporting index: column "user_id" is not indexed
+  fix: Add an index on table "posts" whose leading column is "user_id" (for example an index tag on the model field), then regenerate the schema.
+  at: models/post.go:14
+
+table-without-primary-key  main.audit_log
+  table "audit_log" has no primary key
+  fix: Declare a primary key for the model that maps to table "audit_log" (for example an id field marked as the primary key), then regenerate the schema.
+
+2 findings, 0 stale exclusions
+```
+
+Each finding shows its rule, the database object, what is wrong, how to fix it and, when an adapter
+supplied it, the model source position (`at:`). A stale exclusion is listed before the summary.
+
 ## Exit codes and stale exclusions
 
 `check` exits 0 when it finds nothing, 1 when it reports findings or when a configured exclusion

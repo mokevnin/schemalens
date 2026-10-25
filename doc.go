@@ -29,8 +29,8 @@
 // accumulate.
 //
 // Rules and Explain describe the rule set, and Baseline records the current
-// findings as exclusions. Report.WriteJSON and Report.WriteSARIF render a
-// report exactly as the CLI prints it.
+// findings as exclusions. Report.WriteJSON, Report.WriteText and Report.WriteSARIF
+// render a report exactly as the CLI prints it.
 //
 // The root module depends on no ORM; adapters live in separate modules.
 package schemalens

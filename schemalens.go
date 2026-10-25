@@ -13,6 +13,7 @@ import (
 	"github.com/mokevnin/schemalens/internal/manifest"
 	"github.com/mokevnin/schemalens/internal/rules"
 	"github.com/mokevnin/schemalens/internal/sarif"
+	"github.com/mokevnin/schemalens/internal/text"
 )
 
 // Manifest is a validated model manifest. Obtain one with ParseManifest.
@@ -134,6 +135,20 @@ func (r *Report) WriteJSON(w io.Writer) error {
 		Findings            []Finding   `json:"findings"`
 		UnmatchedExclusions []Exclusion `json:"unmatched_exclusions,omitempty"`
 	}{findings, r.UnmatchedExclusions})
+}
+
+// WriteText writes the report as the human-readable text that
+// `schemalens check --format text` prints.
+func (r *Report) WriteText(w io.Writer) error {
+	fs := make([]finding.Finding, len(r.Findings))
+	for i, f := range r.Findings {
+		fs[i] = f.internal()
+	}
+	um := make([]text.Unmatched, len(r.UnmatchedExclusions))
+	for i, e := range r.UnmatchedExclusions {
+		um[i] = text.Unmatched{Rule: e.Rule, Object: e.Object, Reason: e.Reason}
+	}
+	return text.Render(w, fs, um)
 }
 
 // WriteSARIF writes the report as the SARIF 2.1.0 log that
