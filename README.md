@@ -91,6 +91,23 @@ Rule implementations and database inspection stay internal.
 
 ## For agents
 
+To set schemalens up in a project, copy this prompt into Claude Code, Codex, Cursor or another
+coding agent opened there. The agent installs schemalens, the adapter and the skill, records the
+existing findings in a baseline and adds the check to CI.
+
+```text
+Set up schemalens (https://github.com/mokevnin/schemalens), a database consistency checker for Go, in this project. Read its README first.
+
+1. Find the model layer (ent, gorm or bun) and how the project migrates a database: the migration tool, the local or test database and its DSN.
+2. Install schemalens and the adapter for that ORM the way this project installs its tools, otherwise with the install script and `-a <adapter>`. For another ORM, use the core with a manifest (see docs/adapters.md).
+3. Migrate a local database to the current model and run `schemalens check --dsn <dsn> --adapter <name> --format text`. Never point it at production.
+4. Install the skill with `npx skills add mokevnin/schemalens`, for the agents this team uses, and commit the files it writes.
+5. Do not fix the findings now. Record them with `schemalens baseline --dsn <dsn>`, so that only new findings fail, and review the diff of schemalens.yml. `baseline` takes no adapter, so it records only the findings that need no model: if `check --adapter` still reports findings, show them to me instead of excluding them by hand.
+6. Once the check passes, add it to CI after the step that migrates the CI database.
+7. Add the block from docs/agent-instructions.md to the project's agent instructions (AGENTS.md, CLAUDE.md or whatever file the project already uses; create AGENTS.md if there is none), with the real DSN and adapter.
+8. Run the check once more and report the command, the baselined findings grouped by rule, and anything you could not set up.
+```
+
 - **Skill:** [`skills/schemalens/SKILL.md`](skills/schemalens/SKILL.md) is a user-installable agent
   skill. Install it with [skills.sh](https://skills.sh):
 
