@@ -7,7 +7,7 @@
         "table": "posts",
         "column": "editor_id"
       },
-      "message": "model relates column \"editor_id\" of table \"posts\" to table \"users\", but the foreign key that links them also holds nullable column \"scope_id\", and a row with it NULL skips the check",
+      "message": "model relates column \"editor_id\" of table \"posts\" to table \"users\", but the foreign key that links them also holds nullable column \"scope_id\", and under MATCH SIMPLE, the default, a row with it NULL skips the check",
       "fix": "Make column \"scope_id\" of table \"posts\" NOT NULL so the foreign key checks every row: mark the field required in the model, then regenerate the migration and apply it (fill the NULLs first).",
       "source": {
         "file": "models/schema.go",
