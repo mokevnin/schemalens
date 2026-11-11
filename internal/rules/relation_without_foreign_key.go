@@ -70,7 +70,7 @@ func relationFinding(mt modelTable, rel manifest.Relation) (finding.Finding, boo
 	}
 	if nullable != nil {
 		f.Message = fmt.Sprintf("model relates %s of table %q to table %q, but the foreign key that links them "+
-			"also holds nullable %s, and a row with it NULL skips the check",
+			"also holds nullable %s, and under MATCH SIMPLE, the default, a row with it NULL skips the check",
 			columnsPhrase(rel.Columns), mt.DB.Name, rel.References.Table, columnsPhrase(nullable))
 		f.Fix = fmt.Sprintf("Make %s of table %q NOT NULL so the foreign key checks every row: mark the field "+
 			"required in the model, then regenerate the migration and apply it (fill the NULLs first).",
