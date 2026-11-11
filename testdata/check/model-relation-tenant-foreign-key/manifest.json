@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "accounts",
+      "primary_key": ["id"],
+      "columns": [{ "name": "id" }]
+    },
+    {
+      "name": "users",
+      "primary_key": ["id"],
+      "columns": [{ "name": "id" }, { "name": "account_id" }],
+      "relations": [{ "columns": ["account_id"], "references": { "table": "accounts" } }]
+    },
+    {
+      "name": "posts",
+      "source": { "file": "models/schema.go", "line": 40 },
+      "primary_key": ["id"],
+      "columns": [
+        { "name": "id" },
+        { "name": "account_id" },
+        { "name": "scope_id" },
+        { "name": "author_id" },
+        { "name": "editor_id" }
+      ],
+      "relations": [
+        { "columns": ["account_id"], "references": { "table": "accounts" } },
+        { "columns": ["author_id"], "references": { "table": "users" } },
+        { "columns": ["editor_id"], "references": { "table": "users" } }
+      ]
+    }
+  ]
+}

@@ -7,7 +7,7 @@
 
 ## Why
 
-The model relates two tables, and queries and cascades assume the referenced row exists. Without a foreign key the database accepts references to rows that were never created or have been deleted, and those dangling ids surface later as missing data or failed joins. A many-to-many join table needs a foreign key to each side for the same reason.
+The model relates two tables, and queries and cascades assume the referenced row exists. Without a foreign key the database accepts references to rows that were never created or have been deleted, and those dangling ids surface later as missing data or failed joins. A many-to-many join table needs a foreign key to each side for the same reason. A composite key that also carries a NOT NULL column, such as a tenant id leading (tenant_id, author_id) → users (tenant_id, id), enforces the relation as well and counts.
 
 ## Fix
 
