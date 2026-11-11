@@ -30,10 +30,13 @@ type Unique struct {
 	Columns []string `json:"columns"`
 }
 
-// Relation is a foreign key from Columns to the referenced table.
+// Relation is a foreign key from Columns to the referenced table. RefColumns
+// are the referenced columns, one for each of Columns, in their order; leave
+// them empty when the model does not say which columns it references.
 type Relation struct {
 	Columns    []string `json:"columns"`
 	References TableRef `json:"references"`
+	RefColumns []string `json:"ref_columns,omitempty"`
 }
 
 // TableRef names a table.
