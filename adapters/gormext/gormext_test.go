@@ -194,8 +194,9 @@ func TestManifestCarriesGormsOwnReadingOfTheTags(t *testing.T) {
 	if len(tb.Uniques) != 1 || !slices.Equal(tb.Uniques[0].Columns, []string{"company_id", "nick"}) {
 		t.Errorf("uniques = %+v, want the composite (company_id, nick)", tb.Uniques)
 	}
-	if len(tb.Relations) != 1 || !slices.Equal(tb.Relations[0].Columns, []string{"company_id"}) || tb.Relations[0].References.Table != "companies" {
-		t.Errorf("relations = %+v, want company_id -> companies", tb.Relations)
+	if len(tb.Relations) != 1 || !slices.Equal(tb.Relations[0].Columns, []string{"company_id"}) || tb.Relations[0].References.Table != "companies" ||
+		!slices.Equal(tb.Relations[0].RefColumns, []string{"id"}) {
+		t.Errorf("relations = %+v, want company_id -> companies (id)", tb.Relations)
 	}
 	if tb.Source != nil || tb.Columns[0].Source != nil {
 		t.Error("extended mode has no source positions")
