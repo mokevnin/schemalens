@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/mokevnin/schemalens/compare/v0.1.5...v0.1.6) (2026-11-11)
+
+
+### Bug Fixes
+
+* **rules:** count a composite foreign key that carries the relation's columns ([#32](https://github.com/mokevnin/schemalens/issues/32)) ([c39c665](https://github.com/mokevnin/schemalens/commit/c39c66579707af1cafcdf0656ad86d7d30db83f4))
+
 ## [0.1.5](https://github.com/mokevnin/schemalens/compare/v0.1.4...v0.1.5) (2026-10-25)
 
 
