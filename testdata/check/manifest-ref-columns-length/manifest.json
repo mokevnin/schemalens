@@ -1,0 +1,5 @@
+{"version": 1, "tables": [
+  {"name": "users", "primary_key": ["id"], "columns": [{"name": "id"}]},
+  {"name": "posts", "primary_key": ["id"], "columns": [{"name": "id"}, {"name": "author_id"}],
+   "relations": [{"columns": ["author_id"], "references": {"table": "users"}, "ref_columns": ["id", "uuid"]}]}
+]}

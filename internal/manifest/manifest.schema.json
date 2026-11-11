@@ -112,7 +112,7 @@
           "$ref": "#/$defs/tableRef"
         },
         "ref_columns": {
-          "description": "Referenced columns, in the order of columns. Omit to check only the referenced table.",
+          "description": "Referenced columns, one for each of columns, in their order. Omit to mean the referenced table's key: a foreign key of exactly these columns may then point at any key of the table, and a wider one (a tenant column leading it) must point them at its primary key, in order.",
           "$ref": "#/$defs/columnNames"
         }
       }

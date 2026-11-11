@@ -13,6 +13,12 @@
       "relations": [{ "columns": ["account_id"], "references": { "table": "accounts" } }]
     },
     {
+      "name": "teams",
+      "primary_key": ["account_id", "id"],
+      "columns": [{ "name": "account_id" }, { "name": "id" }],
+      "relations": [{ "columns": ["account_id"], "references": { "table": "accounts" } }]
+    },
+    {
       "name": "posts",
       "source": { "file": "models/schema.go", "line": 40 },
       "primary_key": ["id"],
@@ -21,12 +27,18 @@
         { "name": "account_id" },
         { "name": "scope_id" },
         { "name": "author_id" },
-        { "name": "editor_id" }
+        { "name": "editor_id" },
+        { "name": "team_id" },
+        { "name": "owner_team_id" },
+        { "name": "reviewer_team_id" }
       ],
       "relations": [
         { "columns": ["account_id"], "references": { "table": "accounts" } },
         { "columns": ["author_id"], "references": { "table": "users" } },
-        { "columns": ["editor_id"], "references": { "table": "users" } }
+        { "columns": ["editor_id"], "references": { "table": "users" } },
+        { "columns": ["team_id"], "references": { "table": "teams" }, "ref_columns": ["id"] },
+        { "columns": ["owner_team_id"], "references": { "table": "teams" } },
+        { "columns": ["reviewer_team_id"], "references": { "table": "teams" }, "ref_columns": ["id"] }
       ]
     }
   ]
