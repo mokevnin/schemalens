@@ -120,7 +120,7 @@ func addRelations(m *manifest.Manifest, byTable map[string]int, schemas []*schem
 				addJoinTable(m, byTable, rel, seen)
 				continue
 			}
-			var cols []string
+			var cols, refCols []string
 			var owner, target *schema.Schema
 			for _, rf := range rel.References {
 				if rf.PrimaryValue != "" {
@@ -128,6 +128,7 @@ func addRelations(m *manifest.Manifest, byTable map[string]int, schemas []*schem
 				}
 				owner, target = rf.ForeignKey.Schema, rf.PrimaryKey.Schema
 				cols = append(cols, rf.ForeignKey.DBName)
+				refCols = append(refCols, rf.PrimaryKey.DBName)
 			}
 			if owner == nil || target == nil {
 				continue
@@ -142,7 +143,7 @@ func addRelations(m *manifest.Manifest, byTable map[string]int, schemas []*schem
 				continue
 			}
 			seen[key] = true
-			m.Tables[oi].Relations = append(m.Tables[oi].Relations, manifest.Relation{Columns: cols, References: ref(target.Table)})
+			m.Tables[oi].Relations = append(m.Tables[oi].Relations, manifest.Relation{Columns: cols, References: ref(target.Table), RefColumns: refCols})
 		}
 	}
 }
@@ -175,6 +176,7 @@ func addJoinTable(m *manifest.Manifest, byTable map[string]int, rel *schema.Rela
 		t.Relations = append(t.Relations, manifest.Relation{
 			Columns:    []string{rf.ForeignKey.DBName},
 			References: ref(rf.PrimaryKey.Schema.Table),
+			RefColumns: []string{rf.PrimaryKey.DBName},
 		})
 	}
 	byTable[js.Table] = len(m.Tables)
