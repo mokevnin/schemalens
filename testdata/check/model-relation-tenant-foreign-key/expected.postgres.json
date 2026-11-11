@@ -1,0 +1,46 @@
+{
+  "findings": [
+    {
+      "rule": "relation-without-foreign-key",
+      "object": {
+        "schema": "public",
+        "table": "posts",
+        "column": "editor_id"
+      },
+      "message": "model relates column \"editor_id\" of table \"posts\" to table \"users\", but the foreign key that links them also holds nullable column \"scope_id\", and a row with it NULL skips the check",
+      "fix": "Make column \"scope_id\" of table \"posts\" NOT NULL so the foreign key checks every row: mark the field required in the model, then regenerate the migration and apply it (fill the NULLs first).",
+      "source": {
+        "file": "models/schema.go",
+        "line": 40
+      }
+    },
+    {
+      "rule": "relation-without-foreign-key",
+      "object": {
+        "schema": "public",
+        "table": "posts",
+        "column": "owner_team_id"
+      },
+      "message": "model relates column \"owner_team_id\" of table \"posts\" to table \"teams\", but no foreign key does that",
+      "fix": "Add a foreign key from column \"owner_team_id\" of table \"posts\" to table \"teams\": declare the relation in the model, then regenerate the migration and apply it (repair orphaned rows first).",
+      "source": {
+        "file": "models/schema.go",
+        "line": 40
+      }
+    },
+    {
+      "rule": "relation-without-foreign-key",
+      "object": {
+        "schema": "public",
+        "table": "posts",
+        "column": "reviewer_team_id"
+      },
+      "message": "model relates column \"reviewer_team_id\" of table \"posts\" to table \"teams\", but no foreign key does that",
+      "fix": "Add a foreign key from column \"reviewer_team_id\" of table \"posts\" to table \"teams\": declare the relation in the model, then regenerate the migration and apply it (repair orphaned rows first).",
+      "source": {
+        "file": "models/schema.go",
+        "line": 40
+      }
+    }
+  ]
+}

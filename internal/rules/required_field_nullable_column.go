@@ -2,6 +2,7 @@ package rules
 
 import (
 	"fmt"
+	"slices"
 
 	"ariga.io/atlas/sql/schema"
 
@@ -29,15 +30,7 @@ func init() {
 // column cannot hold null even when the engine reports it as nullable (SQLite
 // reports INTEGER PRIMARY KEY, the rowid alias, that way).
 func inPrimaryKey(mt modelTable, c *schema.Column) bool {
-	if mt.DB.PrimaryKey == nil {
-		return false
-	}
-	for _, p := range mt.DB.PrimaryKey.Parts {
-		if p.C != nil && p.C.Name == c.Name {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(primaryKeyColumns(mt.DB), c.Name)
 }
 
 func checkRequiredFieldNullableColumn(in Input) []finding.Finding {

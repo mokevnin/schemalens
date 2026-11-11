@@ -65,8 +65,10 @@ type Unique struct {
 type Relation struct {
 	Columns    []string `json:"columns"`
 	References TableRef `json:"references"`
-	// RefColumns are the referenced columns, in the order of Columns. Empty
-	// means "the referenced table's key", and the column match is not checked.
+	// RefColumns are the referenced columns, one for each of Columns, in their
+	// order. Empty means "the referenced table's key": a foreign key of exactly
+	// Columns may then point at any key of the table, and a wider one (a tenant
+	// column leading it) must point Columns at the primary key, in order.
 	RefColumns []string `json:"ref_columns,omitempty"`
 }
 
@@ -106,7 +108,28 @@ func Parse(data []byte) (*Manifest, error) {
 	if err := json.Unmarshal(data, &m); err != nil {
 		return nil, fmt.Errorf("invalid manifest: %w", err)
 	}
+	if err := m.checkRelations(); err != nil {
+		return nil, err
+	}
 	return &m, nil
+}
+
+// checkRelations enforces what the JSON Schema cannot express: a relation that
+// names its referenced columns names one for each of its columns.
+func (m *Manifest) checkRelations() error {
+	var problems []string
+	for i, t := range m.Tables {
+		for j, r := range t.Relations {
+			if len(r.RefColumns) > 0 && len(r.RefColumns) != len(r.Columns) {
+				problems = append(problems, fmt.Sprintf("at /tables/%d/relations/%d/ref_columns: %d referenced columns for %d columns",
+					i, j, len(r.RefColumns), len(r.Columns)))
+			}
+		}
+	}
+	if len(problems) == 0 {
+		return nil
+	}
+	return fmt.Errorf("invalid manifest:\n  %s", strings.Join(problems, "\n  "))
 }
 
 func validate(data []byte) error {
