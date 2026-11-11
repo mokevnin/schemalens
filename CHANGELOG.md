@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.7](https://github.com/mokevnin/schemalens/compare/v0.1.6...v0.1.7) (2026-11-11)
+
+
+### Features
+
+* **staticmodel:** carry a relation's referenced columns ([16eb9ee](https://github.com/mokevnin/schemalens/commit/16eb9ee00c332fb96e26c6d2004ab2b2f233e56e))
+
+
+### Bug Fixes
+
+* **adapter-gormext:** name the referenced columns of every relation ([cdb43a7](https://github.com/mokevnin/schemalens/commit/cdb43a7b0aa75653974e1e731a79e2286d727ba8))
+* **rules:** say the nullable key column skips the check under MATCH SIMPLE ([1202a45](https://github.com/mokevnin/schemalens/commit/1202a45bd8b57e8c38e493804c1339a1ce8f35dc))
+
 ## [0.1.6](https://github.com/mokevnin/schemalens/compare/v0.1.5...v0.1.6) (2026-11-11)
 
 
