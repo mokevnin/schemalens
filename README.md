@@ -142,3 +142,10 @@ in `--format sarif` output as `runs[0].invocations[0]` (`executionSuccessful: fa
 [database_consistency](https://github.com/djezzzl/database_consistency), the Ruby tool that checks
 a database schema against ActiveRecord models. schemalens brings the same idea to Go, with
 structured findings built for coding agents.
+
+## See also
+
+[dbcleaner](https://github.com/mokevnin/dbcleaner) puts the test database back to its baseline after
+each Go test, with transaction, truncation or deletion strategies (PostgreSQL, MySQL, SQLite). The
+two fit together: migrate the test database once, run `schemalens check` against it, and let
+dbcleaner keep every test isolated on that same schema.
